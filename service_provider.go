@@ -304,29 +304,23 @@ func (r *AuthnRequest) Redirect(relayState string, sp *ServiceProvider) (*url.UR
 	}
 
 	// We can't depend on Query().set() as order matters for signing
+	reqString := requestStr.String()
 	query := rv.RawQuery
 	if len(query) > 0 {
-		query += "&SAMLRequest=" + url.QueryEscape(requestStr.String())
+		query += "&" + string(samlRequest) + "=" + url.QueryEscape(reqString)
 	} else {
-		query += "SAMLRequest=" + url.QueryEscape(requestStr.String())
+		query += string(samlRequest) + "=" + url.QueryEscape(reqString)
 	}
 
 	if relayState != "" {
 		query += "&RelayState=" + relayState
 	}
 	if len(sp.SignatureMethod) > 0 {
-		query += "&SigAlg=" + url.QueryEscape(sp.SignatureMethod)
-		signingContext, err := GetSigningContext(sp)
-
-		if err != nil {
-			return nil, err
+		var errSig error
+		query, errSig = sp.signQuery(samlRequest, query, reqString, relayState)
+		if errSig != nil {
+			return nil, errSig
 		}
-
-		sig, err := signingContext.SignString(query)
-		if err != nil {
-			return nil, err
-		}
-		query += "&Signature=" + url.QueryEscape(base64.StdEncoding.EncodeToString(sig))
 	}
 
 	rv.RawQuery = query
@@ -1624,8 +1618,9 @@ func (sp *ServiceProvider) nameIDFormat() string {
 
 // ValidateLogoutResponseRequest validates the LogoutResponse content from the request
 func (sp *ServiceProvider) ValidateLogoutResponseRequest(req *http.Request) error {
-	if data := req.URL.Query().Get("SAMLResponse"); data != "" {
-		return sp.ValidateLogoutResponseRedirect(data)
+	query := req.URL.Query()
+	if data := query.Get("SAMLResponse"); data != "" {
+		return sp.ValidateLogoutResponseRedirect(query)
 	}
 
 	err := req.ParseForm()
@@ -1677,7 +1672,8 @@ func (sp *ServiceProvider) ValidateLogoutResponseForm(postFormData string) error
 //
 // URL Binding appears to be gzip / flate encoded
 // See https://www.oasis-open.org/committees/download.php/20645/sstc-saml-tech-overview-2%200-draft-10.pdf  6.6
-func (sp *ServiceProvider) ValidateLogoutResponseRedirect(queryParameterData string) error {
+func (sp *ServiceProvider) ValidateLogoutResponseRedirect(query url.Values) error {
+	queryParameterData := query.Get("SAMLResponse")
 	retErr := &InvalidResponseError{
 		Now: TimeNow(),
 	}
@@ -1699,6 +1695,13 @@ func (sp *ServiceProvider) ValidateLogoutResponseRedirect(queryParameterData str
 		return err
 	}
 
+	if query.Get("Signature") != "" && query.Get("SigAlg") != "" {
+		if err := sp.validateQuerySig(query); err != nil {
+			retErr.PrivateErr = err
+			return retErr
+		}
+	}
+
 	doc := etree.NewDocument()
 	if err := doc.ReadFromBytes(gr); err != nil {
 		retErr.PrivateErr = err
@@ -1715,7 +1718,11 @@ func (sp *ServiceProvider) ValidateLogoutResponseRedirect(queryParameterData str
 		retErr.PrivateErr = err
 		return retErr
 	}
-	return sp.validateLogoutResponse(&resp)
+	if err := sp.validateLogoutResponse(&resp); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // validateLogoutResponse validates the LogoutResponse fields. Returns a nil error if the LogoutResponse is valid.
