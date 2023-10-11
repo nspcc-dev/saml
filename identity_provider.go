@@ -132,6 +132,8 @@ func (idp *IdentityProvider) Metadata() *EntityDescriptor {
 				SSODescriptor: SSODescriptor{
 					RoleDescriptor: RoleDescriptor{
 						ProtocolSupportEnumeration: "urn:oasis:names:tc:SAML:2.0:protocol",
+						CacheDuration:              validDuration,
+						ValidUntil:                 TimeNow().Add(validDuration),
 						KeyDescriptors: []KeyDescriptor{
 							{
 								Use: "signing",
