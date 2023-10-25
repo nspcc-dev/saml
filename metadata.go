@@ -382,7 +382,8 @@ type IDPSSODescriptor struct {
 	Attributes                 []Attribute `xml:"Attribute"`
 }
 
-func (m IDPSSODescriptor) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+// MarshalXML implements xml.Marshaler
+func (m IDPSSODescriptor) MarshalXML(e *xml.Encoder, _ xml.StartElement) error {
 	type Alias IDPSSODescriptor
 	aux := &struct {
 		ValidUntil    RelaxedTime `xml:"validUntil,attr,omitempty"`
@@ -426,7 +427,8 @@ type SPSSODescriptor struct {
 	AttributeConsumingServices []AttributeConsumingService `xml:"AttributeConsumingService"`
 }
 
-func (m SPSSODescriptor) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+// MarshalXML implements xml.Marshaler
+func (m SPSSODescriptor) MarshalXML(e *xml.Encoder, _ xml.StartElement) error {
 	type Alias SPSSODescriptor
 	aux := &struct {
 		ValidUntil    RelaxedTime `xml:"validUntil,attr,omitempty"`
@@ -488,7 +490,8 @@ type AuthnAuthorityDescriptor struct {
 	NameIDFormats              []NameIDFormat `xml:"NameIDFormat"`
 }
 
-func (m AuthnAuthorityDescriptor) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+// MarshalXML implements xml.Marshaler
+func (m AuthnAuthorityDescriptor) MarshalXML(e *xml.Encoder, _ xml.StartElement) error {
 	type Alias AuthnAuthorityDescriptor
 	aux := &struct {
 		ValidUntil    RelaxedTime `xml:"validUntil,attr,omitempty"`
@@ -531,7 +534,8 @@ type PDPDescriptor struct {
 	NameIDFormats              []NameIDFormat `xml:"NameIDFormat"`
 }
 
-func (m PDPDescriptor) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+// MarshalXML implements xml.Marshaler
+func (m PDPDescriptor) MarshalXML(e *xml.Encoder, _ xml.StartElement) error {
 	type Alias PDPDescriptor
 	aux := &struct {
 		ValidUntil    RelaxedTime `xml:"validUntil,attr,omitempty"`
@@ -576,7 +580,8 @@ type AttributeAuthorityDescriptor struct {
 	Attributes                 []Attribute    `xml:"Attribute"`
 }
 
-func (m AttributeAuthorityDescriptor) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+// MarshalXML implements xml.Marshaler
+func (m AttributeAuthorityDescriptor) MarshalXML(e *xml.Encoder, _ xml.StartElement) error {
 	type Alias AttributeAuthorityDescriptor
 	aux := &struct {
 		ValidUntil    RelaxedTime `xml:"validUntil,attr,omitempty"`

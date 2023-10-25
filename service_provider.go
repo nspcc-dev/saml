@@ -1722,11 +1722,8 @@ func (sp *ServiceProvider) ValidateLogoutResponseRedirect(query url.Values) erro
 		retErr.PrivateErr = err
 		return retErr
 	}
-	if err := sp.validateLogoutResponse(&resp); err != nil {
-		return err
-	}
 
-	return nil
+	return sp.validateLogoutResponse(&resp)
 }
 
 // validateLogoutResponse validates the LogoutResponse fields. Returns a nil error if the LogoutResponse is valid.
