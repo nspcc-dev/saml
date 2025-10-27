@@ -7,6 +7,7 @@ package samlidp
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -89,10 +90,10 @@ func (s *Server) HandlePutUser(w http.ResponseWriter, r *http.Request) {
 	} else {
 		existingUser := User{}
 		err := s.Store.Get(fmt.Sprintf("/users/%s", r.PathValue("id")), &existingUser)
-		switch err {
-		case nil:
+		switch {
+		case err == nil:
 			user.HashedPassword = existingUser.HashedPassword
-		case ErrNotFound:
+		case errors.Is(err, ErrNotFound):
 			// nop
 		default:
 			s.logger.Printf("ERROR: %s", err)
