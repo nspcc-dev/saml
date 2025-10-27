@@ -1540,7 +1540,7 @@ func TestXswPermutationSevenIsRejected(t *testing.T) {
 	var e *InvalidResponseError
 	if errors.As(err, &e) {
 		assert.Check(t, is.Error(e.PrivateErr,
-			"cannot validate signature on Assertion: Signature could not be verified"))
+			"cannot validate signature on Assertion: crypto/rsa: verification error"))
 	}
 }
 
@@ -1574,7 +1574,7 @@ func TestXswPermutationEightIsRejected(t *testing.T) {
 	var e *InvalidResponseError
 	if errors.As(err, &e) {
 		assert.Check(t, is.Error(e.PrivateErr,
-			"cannot validate signature on Assertion: Signature could not be verified"))
+			"cannot validate signature on Assertion: crypto/rsa: verification error"))
 	}
 }
 
