@@ -90,7 +90,6 @@ func TestCanParseMetadata(t *testing.T) {
 		},
 	}
 	assert.Check(t, is.DeepEqual(expected, metadata))
-
 }
 
 func TestCanProduceSPMetadata(t *testing.T) {

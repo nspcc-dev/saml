@@ -147,7 +147,6 @@ func TestSPCanProduceMetadataWithBothCerts(t *testing.T) {
 	spMetadata, err := xml.MarshalIndent(s.Metadata(), "", "  ")
 	assert.Check(t, err)
 	golden.Assert(t, string(spMetadata), t.Name()+"_metadata")
-
 }
 
 func TestCanProduceMetadataNoCerts(t *testing.T) {
@@ -1798,7 +1797,6 @@ func TestMakeSignedArtifactResolveRequestWithBogusSignatureMethod(t *testing.T) 
 
 	_, err := sp.MakeArtifactResolveRequest("artifactId")
 	assert.Check(t, is.ErrorContains(err, "invalid signing method bogus"))
-
 }
 
 func TestParseXMLArtifactResponse(t *testing.T) {

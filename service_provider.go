@@ -446,7 +446,6 @@ func (sp *ServiceProvider) getCertBasedOnFingerprint(el *etree.Element) ([]*x509
 	}
 
 	return []*x509.Certificate{cert}, nil
-
 }
 
 func parseCert(x509Data string) (*x509.Certificate, error) {
@@ -521,7 +520,6 @@ func (sp *ServiceProvider) MakeArtifactResolveRequest(artifactID string) (*Artif
 // MakeAuthenticationRequest produces a new AuthnRequest object to send to the idpURL
 // that uses the specified binding (HTTPRedirectBinding or HTTPPostBinding)
 func (sp *ServiceProvider) MakeAuthenticationRequest(idpURL string, binding string, resultBinding string) (*AuthnRequest, error) {
-
 	allowCreate := true
 	nameIDFormat := sp.nameIDFormat()
 	req := AuthnRequest{
@@ -623,7 +621,6 @@ func (sp *ServiceProvider) SignArtifactResolve(req *ArtifactResolve) error {
 
 // SignAuthnRequest adds the `Signature` element to the `AuthnRequest`.
 func (sp *ServiceProvider) SignAuthnRequest(req *AuthnRequest) error {
-
 	signingContext, err := GetSigningContext(sp)
 	if err != nil {
 		return err
@@ -1365,7 +1362,6 @@ func (sp *ServiceProvider) SignLogoutRequest(req *LogoutRequest) error {
 
 // MakeLogoutRequest produces a new LogoutRequest object for idpURL.
 func (sp *ServiceProvider) MakeLogoutRequest(idpURL, nameID, sessionIndex string) (*LogoutRequest, error) {
-
 	req := LogoutRequest{
 		ID:           fmt.Sprintf("id-%x", randomBytes(20)),
 		IssueInstant: TimeNow(),
