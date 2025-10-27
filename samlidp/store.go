@@ -7,7 +7,7 @@ package samlidp
 
 import "errors"
 
-// ErrNotFound is returned from Store.Get() when a stored item is not present
+// ErrNotFound is returned from Store.Get() when a stored item is not present.
 var ErrNotFound = errors.New("not found")
 
 // Store is an interface that describes an abstract key-value store.
@@ -23,6 +23,6 @@ type Store interface {
 
 	// List returns all the keys that start with `prefix`. The prefix is
 	// stripped from each returned value. So if keys are ["aa", "ab", "cd"]
-	// then List("a") would produce []string{"a", "b"}
+	// then List("a") would produce []string{"a", "b"}.
 	List(prefix string) ([]string, error)
 }

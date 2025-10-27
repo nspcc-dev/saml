@@ -16,7 +16,7 @@ import (
 	"github.com/beevik/etree"
 )
 
-// GCM implements Decrypter and Encrypter for block ciphers in struct mode
+// GCM implements Decrypter and Encrypter for block ciphers in struct mode.
 type GCM struct {
 	keySize   int
 	algorithm string
@@ -34,7 +34,7 @@ func (e GCM) Algorithm() string {
 	return e.algorithm
 }
 
-// Encrypt encrypts plaintext with key and nonce
+// Encrypt encrypts plaintext with key and nonce.
 func (e GCM) Encrypt(key interface{}, plaintext []byte, nonce []byte) (*etree.Element, error) {
 	keyBuf, ok := key.([]byte)
 	if !ok {
@@ -135,7 +135,7 @@ func (e GCM) Decrypt(key interface{}, ciphertextEl *etree.Element) ([]byte, erro
 }
 
 var (
-	// AES128GCM implements AES128-GCM mode for encryption and decryption
+	// AES128GCM implements AES128-GCM mode for encryption and decryption.
 	AES128GCM BlockCipher = GCM{
 		keySize:   16,
 		algorithm: "http://www.w3.org/2009/xmlenc11#aes128-gcm",

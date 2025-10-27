@@ -18,7 +18,7 @@ import (
 )
 
 // Given a SAMLRequest query string, sign the query and validate signature
-// Using same Cert for SP and IdP in order to test
+// Using same Cert for SP and IdP in order to test.
 func TestSigningAndValidation(t *testing.T) {
 	type testCase struct {
 		desc         string

@@ -20,14 +20,14 @@ import (
 // to use.
 type RSA struct {
 	BlockCipher  BlockCipher
-	DigestMethod DigestMethod // only for OAEP
+	DigestMethod DigestMethod // only for OAEP.
 
 	algorithm    string
 	keyEncrypter func(e RSA, pubKey *rsa.PublicKey, plaintext []byte) ([]byte, error)
 	keyDecrypter func(e RSA, privKey *rsa.PrivateKey, ciphertext []byte) ([]byte, error)
 }
 
-// Algorithm returns the name of the algorithm
+// Algorithm returns the name of the algorithm.
 func (e RSA) Algorithm() string {
 	return e.algorithm
 }

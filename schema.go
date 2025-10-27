@@ -112,7 +112,7 @@ func (r *LogoutRequest) Element() *etree.Element {
 	return el
 }
 
-// MarshalXML implements xml.Marshaler
+// MarshalXML implements xml.Marshaler.
 func (r *LogoutRequest) MarshalXML(e *xml.Encoder, _ xml.StartElement) error {
 	type Alias LogoutRequest
 	aux := &struct {
@@ -127,7 +127,7 @@ func (r *LogoutRequest) MarshalXML(e *xml.Encoder, _ xml.StartElement) error {
 	return e.Encode(aux)
 }
 
-// UnmarshalXML implements xml.Unmarshaler
+// UnmarshalXML implements xml.Unmarshaler.
 func (r *LogoutRequest) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	type Alias LogoutRequest
 	aux := &struct {
@@ -145,7 +145,7 @@ func (r *LogoutRequest) UnmarshalXML(d *xml.Decoder, start xml.StartElement) err
 	return nil
 }
 
-// Bytes returns a byte array representation of the LogoutRequest
+// Bytes returns a byte array representation of the LogoutRequest.
 func (r *LogoutRequest) Bytes() ([]byte, error) {
 	doc := etree.NewDocument()
 	doc.SetRoot(r.Element())
@@ -158,7 +158,7 @@ func (r *LogoutRequest) Bytes() ([]byte, error) {
 	return buf, nil
 }
 
-// Deflate returns a compressed byte array of the LogoutRequest
+// Deflate returns a compressed byte array of the LogoutRequest.
 func (r *LogoutRequest) Deflate() ([]byte, error) {
 	buf, err := r.Bytes()
 	if err != nil {
@@ -241,7 +241,7 @@ func (r *AuthnRequest) Element() *etree.Element {
 	return el
 }
 
-// MarshalXML implements xml.Marshaler
+// MarshalXML implements xml.Marshaler.
 func (r *AuthnRequest) MarshalXML(e *xml.Encoder, _ xml.StartElement) error {
 	type Alias AuthnRequest
 	aux := &struct {
@@ -254,7 +254,7 @@ func (r *AuthnRequest) MarshalXML(e *xml.Encoder, _ xml.StartElement) error {
 	return e.Encode(aux)
 }
 
-// UnmarshalXML implements xml.Unmarshaler
+// UnmarshalXML implements xml.Unmarshaler.
 func (r *AuthnRequest) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	type Alias AuthnRequest
 	aux := &struct {
@@ -272,7 +272,7 @@ func (r *AuthnRequest) UnmarshalXML(d *xml.Decoder, start xml.StartElement) erro
 
 // Issuer represents the SAML object of the same name.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf.
 type Issuer struct {
 	XMLName         xml.Name `xml:"urn:oasis:names:tc:SAML:2.0:assertion Issuer"`
 	NameQualifier   string   `xml:",attr"`
@@ -303,7 +303,7 @@ func (a *Issuer) Element() *etree.Element {
 
 // NameIDPolicy represents the SAML object of the same name.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf.
 type NameIDPolicy struct {
 	XMLName         xml.Name `xml:"urn:oasis:names:tc:SAML:2.0:protocol NameIDPolicy"`
 	Format          *string  `xml:",attr"`
@@ -360,8 +360,8 @@ func (r *ArtifactResolve) Element() *etree.Element {
 	}
 	if r.Signature != nil {
 		// ADFS requires that <Signature> come before <Artifact>.
-		// ref: https://github.com/nspcc-dev/saml/issues/535
-		// ref: https://www.wiktorzychla.com/2017/09/adfs-and-saml2-artifact-binding-woes.html
+		// ref: https://github.com/nspcc-dev/saml/issues/535.
+		// ref: https://www.wiktorzychla.com/2017/09/adfs-and-saml2-artifact-binding-woes.html.
 		el.AddChild(r.Signature)
 	}
 	artifact := etree.NewElement("samlp:Artifact")
@@ -370,7 +370,7 @@ func (r *ArtifactResolve) Element() *etree.Element {
 	return el
 }
 
-// SoapRequest returns a SOAP Envelope contining the ArtifactResolve request
+// SoapRequest returns a SOAP Envelope contining the ArtifactResolve request.
 func (r *ArtifactResolve) SoapRequest() *etree.Element {
 	envelope := etree.NewElement("soapenv:Envelope")
 	envelope.CreateAttr("xmlns:soapenv", "http://schemas.xmlsoap.org/soap/envelope/")
@@ -381,7 +381,7 @@ func (r *ArtifactResolve) SoapRequest() *etree.Element {
 	return envelope
 }
 
-// MarshalXML implements xml.Marshaler
+// MarshalXML implements xml.Marshaler.
 func (r *ArtifactResolve) MarshalXML(e *xml.Encoder, _ xml.StartElement) error {
 	type Alias ArtifactResolve
 	aux := &struct {
@@ -394,7 +394,7 @@ func (r *ArtifactResolve) MarshalXML(e *xml.Encoder, _ xml.StartElement) error {
 	return e.Encode(aux)
 }
 
-// UnmarshalXML implements xml.Unmarshaler
+// UnmarshalXML implements xml.Unmarshaler.
 func (r *ArtifactResolve) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	type Alias ArtifactResolve
 	aux := &struct {
@@ -455,7 +455,7 @@ func (r *ArtifactResponse) Element() *etree.Element {
 	return el
 }
 
-// MarshalXML implements xml.Marshaler
+// MarshalXML implements xml.Marshaler.
 func (r *ArtifactResponse) MarshalXML(e *xml.Encoder, _ xml.StartElement) error {
 	type Alias ArtifactResponse
 	aux := &struct {
@@ -468,7 +468,7 @@ func (r *ArtifactResponse) MarshalXML(e *xml.Encoder, _ xml.StartElement) error 
 	return e.Encode(aux)
 }
 
-// UnmarshalXML implements xml.Unmarshaler
+// UnmarshalXML implements xml.Unmarshaler.
 func (r *ArtifactResponse) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	type Alias ArtifactResponse
 	aux := &struct {
@@ -486,7 +486,7 @@ func (r *ArtifactResponse) UnmarshalXML(d *xml.Decoder, start xml.StartElement) 
 
 // Response represents the SAML object of the same name.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf.
 type Response struct {
 	XMLName      xml.Name  `xml:"urn:oasis:names:tc:SAML:2.0:protocol Response"`
 	ID           string    `xml:",attr"`
@@ -549,7 +549,7 @@ func (r *Response) Element() *etree.Element {
 	return el
 }
 
-// MarshalXML implements xml.Marshaler
+// MarshalXML implements xml.Marshaler.
 func (r *Response) MarshalXML(e *xml.Encoder, _ xml.StartElement) error {
 	type Alias Response
 	aux := &struct {
@@ -562,7 +562,7 @@ func (r *Response) MarshalXML(e *xml.Encoder, _ xml.StartElement) error {
 	return e.Encode(aux)
 }
 
-// UnmarshalXML implements xml.Unmarshaler
+// UnmarshalXML implements xml.Unmarshaler.
 func (r *Response) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	type Alias Response
 	aux := &struct {
@@ -580,7 +580,7 @@ func (r *Response) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 
 // Status represents the SAML object of the same name.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf.
 type Status struct {
 	XMLName       xml.Name `xml:"urn:oasis:names:tc:SAML:2.0:protocol Status"`
 	StatusCode    StatusCode
@@ -603,7 +603,7 @@ func (s *Status) Element() *etree.Element {
 
 // StatusCode represents the SAML object of the same name.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf.
 type StatusCode struct {
 	XMLName    xml.Name `xml:"urn:oasis:names:tc:SAML:2.0:protocol StatusCode"`
 	Value      string   `xml:",attr"`
@@ -626,7 +626,7 @@ func (s *StatusCode) Element() *etree.Element {
 var StatusSuccess = "urn:oasis:names:tc:SAML:2.0:status:Success"
 
 const (
-	// The permissible top-level <StatusCode> values are as follows:
+	// The permissible top-level <StatusCode> values are as follows.
 
 	// StatusRequester means the request could not be performed due to an error on the part of the requester.
 	StatusRequester = "urn:oasis:names:tc:SAML:2.0:status:Requester"
@@ -701,7 +701,7 @@ const (
 
 // StatusMessage represents the SAML element StatusMessage.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §3.2.2.3
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §3.2.2.3.
 type StatusMessage struct {
 	XMLName xml.Name `xml:"urn:oasis:names:tc:SAML:2.0:protocol StatusMessage"`
 	Value   string   `xml:",chardata"`
@@ -716,7 +716,7 @@ func (sm StatusMessage) Element() *etree.Element {
 
 // StatusDetail represents the SAML element StatusDetail.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §3.2.2.4
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §3.2.2.4.
 type StatusDetail struct {
 	Children []*etree.Element
 }
@@ -732,7 +732,7 @@ func (sm StatusDetail) Element() *etree.Element {
 
 // Assertion represents the SAML element Assertion.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.3.3
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.3.3.
 type Assertion struct {
 	XMLName      xml.Name  `xml:"urn:oasis:names:tc:SAML:2.0:assertion Assertion"`
 	ID           string    `xml:",attr"`
@@ -779,7 +779,7 @@ func (a *Assertion) Element() *etree.Element {
 	return el
 }
 
-// UnmarshalXML implements xml.Unmarshaler
+// UnmarshalXML implements xml.Unmarshaler.
 func (a *Assertion) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	type Alias Assertion
 	aux := &struct {
@@ -797,7 +797,7 @@ func (a *Assertion) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 
 // Subject represents the SAML element Subject.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.4.1
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.4.1.
 type Subject struct {
 	XMLName xml.Name `xml:"urn:oasis:names:tc:SAML:2.0:assertion Subject"`
 	// BaseID               *BaseID  ... TODO
@@ -820,7 +820,7 @@ func (a *Subject) Element() *etree.Element {
 
 // NameID represents the SAML element NameID.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.2.3
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.2.3.
 type NameID struct {
 	NameQualifier   string `xml:",attr"`
 	SPNameQualifier string `xml:",attr"`
@@ -852,7 +852,7 @@ func (a *NameID) Element() *etree.Element {
 
 // SessionIndex represents the SAML element SessionIndex.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §3.7.1
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §3.7.1.
 type SessionIndex struct {
 	Value string `xml:",chardata"`
 }
@@ -869,7 +869,7 @@ func (s *SessionIndex) Element() *etree.Element {
 
 // SubjectConfirmation represents the SAML element SubjectConfirmation.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.4.1.1
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.4.1.1.
 type SubjectConfirmation struct {
 	Method string `xml:",attr"`
 	// BaseID               *BaseID  ... TODO
@@ -893,7 +893,7 @@ func (a *SubjectConfirmation) Element() *etree.Element {
 
 // SubjectConfirmationData represents the SAML element SubjectConfirmationData.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.4.1.2
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.4.1.2.
 type SubjectConfirmationData struct {
 	NotBefore    time.Time `xml:",attr"`
 	NotOnOrAfter time.Time `xml:",attr"`
@@ -923,7 +923,7 @@ func (s *SubjectConfirmationData) Element() *etree.Element {
 	return el
 }
 
-// MarshalXML implements xml.Marshaler
+// MarshalXML implements xml.Marshaler.
 func (s *SubjectConfirmationData) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	type Alias SubjectConfirmationData
 	aux := &struct {
@@ -936,7 +936,7 @@ func (s *SubjectConfirmationData) MarshalXML(e *xml.Encoder, start xml.StartElem
 	return e.EncodeElement(aux, start)
 }
 
-// UnmarshalXML implements xml.Unmarshaler
+// UnmarshalXML implements xml.Unmarshaler.
 func (s *SubjectConfirmationData) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	type Alias SubjectConfirmationData
 	aux := &struct {
@@ -954,7 +954,7 @@ func (s *SubjectConfirmationData) UnmarshalXML(d *xml.Decoder, start xml.StartEl
 
 // Conditions represents the SAML element Conditions.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.5.1
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.5.1.
 type Conditions struct {
 	NotBefore            time.Time             `xml:",attr"`
 	NotOnOrAfter         time.Time             `xml:",attr"`
@@ -984,7 +984,7 @@ func (c *Conditions) Element() *etree.Element {
 	return el
 }
 
-// MarshalXML implements xml.Marshaler
+// MarshalXML implements xml.Marshaler.
 func (c *Conditions) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	type Alias Conditions
 	aux := &struct {
@@ -999,7 +999,7 @@ func (c *Conditions) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	return e.EncodeElement(aux, start)
 }
 
-// UnmarshalXML implements xml.Unmarshaler
+// UnmarshalXML implements xml.Unmarshaler.
 func (c *Conditions) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	type Alias Conditions
 	aux := &struct {
@@ -1019,7 +1019,7 @@ func (c *Conditions) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error 
 
 // AudienceRestriction represents the SAML element AudienceRestriction.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.5.1.4
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.5.1.4.
 type AudienceRestriction struct {
 	Audience Audience
 }
@@ -1033,7 +1033,7 @@ func (a *AudienceRestriction) Element() *etree.Element {
 
 // Audience represents the SAML element Audience.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.5.1.4
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.5.1.4.
 type Audience struct {
 	Value string `xml:",chardata"`
 }
@@ -1047,7 +1047,7 @@ func (a *Audience) Element() *etree.Element {
 
 // OneTimeUse represents the SAML element OneTimeUse.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.5.1.5
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.5.1.5.
 type OneTimeUse struct{}
 
 // Element returns an etree.Element representing the object in XML form.
@@ -1057,7 +1057,7 @@ func (a *OneTimeUse) Element() *etree.Element {
 
 // ProxyRestriction represents the SAML element ProxyRestriction.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.5.1.6
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.5.1.6.
 type ProxyRestriction struct {
 	Count     *int
 	Audiences []Audience
@@ -1077,7 +1077,7 @@ func (a *ProxyRestriction) Element() *etree.Element {
 
 // AuthnStatement represents the SAML element AuthnStatement.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.7.2
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.7.2.
 type AuthnStatement struct {
 	AuthnInstant        time.Time  `xml:",attr"`
 	SessionIndex        string     `xml:",attr"`
@@ -1103,7 +1103,7 @@ func (a *AuthnStatement) Element() *etree.Element {
 	return el
 }
 
-// MarshalXML implements xml.Marshaler
+// MarshalXML implements xml.Marshaler.
 func (a *AuthnStatement) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	type Alias AuthnStatement
 	aux := &struct {
@@ -1118,7 +1118,7 @@ func (a *AuthnStatement) MarshalXML(e *xml.Encoder, start xml.StartElement) erro
 	return e.EncodeElement(aux, start)
 }
 
-// UnmarshalXML implements xml.Unmarshaler
+// UnmarshalXML implements xml.Unmarshaler.
 func (a *AuthnStatement) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	type Alias AuthnStatement
 	aux := &struct {
@@ -1138,7 +1138,7 @@ func (a *AuthnStatement) UnmarshalXML(d *xml.Decoder, start xml.StartElement) er
 
 // SubjectLocality represents the SAML element SubjectLocality.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.7.2.1
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.7.2.1.
 type SubjectLocality struct {
 	Address string `xml:",attr"`
 	DNSName string `xml:",attr"`
@@ -1158,7 +1158,7 @@ func (a *SubjectLocality) Element() *etree.Element {
 
 // AuthnContext represents the SAML element AuthnContext.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.7.2.2
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.7.2.2.
 type AuthnContext struct {
 	AuthnContextClassRef *AuthnContextClassRef
 	// AuthnContextDecl          *AuthnContextDecl        ... TODO
@@ -1177,7 +1177,7 @@ func (a *AuthnContext) Element() *etree.Element {
 
 // AuthnContextClassRef represents the SAML element AuthnContextClassRef.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.7.2.2
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.7.2.2.
 type AuthnContextClassRef struct {
 	Value string `xml:",chardata"`
 }
@@ -1191,7 +1191,7 @@ func (a *AuthnContextClassRef) Element() *etree.Element {
 
 // AttributeStatement represents the SAML element AttributeStatement.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.7.3
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.7.3.
 type AttributeStatement struct {
 	Attributes []Attribute `xml:"Attribute"`
 }
@@ -1207,7 +1207,7 @@ func (a *AttributeStatement) Element() *etree.Element {
 
 // Attribute represents the SAML element Attribute.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.7.3.1
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.7.3.1.
 type Attribute struct {
 	FriendlyName string           `xml:",attr"`
 	Name         string           `xml:",attr"`
@@ -1235,7 +1235,7 @@ func (a *Attribute) Element() *etree.Element {
 
 // AttributeValue represents the SAML element AttributeValue.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.7.3.1.1
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf §2.7.3.1.1.
 type AttributeValue struct {
 	Type   string `xml:"http://www.w3.org/2001/XMLSchema-instance type,attr"`
 	Value  string `xml:",chardata"`
@@ -1257,7 +1257,7 @@ func (a *AttributeValue) Element() *etree.Element {
 
 // LogoutResponse represents the SAML object of the same name.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf.
 type LogoutResponse struct {
 	XMLName      xml.Name  `xml:"urn:oasis:names:tc:SAML:2.0:protocol LogoutResponse"`
 	ID           string    `xml:",attr"`
@@ -1299,7 +1299,7 @@ func (r *LogoutResponse) Element() *etree.Element {
 	return el
 }
 
-// MarshalXML implements xml.Marshaler
+// MarshalXML implements xml.Marshaler.
 func (r *LogoutResponse) MarshalXML(e *xml.Encoder, _ xml.StartElement) error {
 	type Alias LogoutResponse
 	aux := &struct {
@@ -1312,7 +1312,7 @@ func (r *LogoutResponse) MarshalXML(e *xml.Encoder, _ xml.StartElement) error {
 	return e.Encode(aux)
 }
 
-// UnmarshalXML implements xml.Unmarshaler
+// UnmarshalXML implements xml.Unmarshaler.
 func (r *LogoutResponse) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	type Alias LogoutResponse
 	aux := &struct {

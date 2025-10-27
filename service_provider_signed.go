@@ -28,9 +28,9 @@ const (
 )
 
 var (
-	// ErrInvalidQuerySignature is returned when the query signature is invalid
+	// ErrInvalidQuerySignature is returned when the query signature is invalid.
 	ErrInvalidQuerySignature = errors.New("invalid query signature")
-	// ErrNoQuerySignature is returned when the query does not contain a signature
+	// ErrNoQuerySignature is returned when the query does not contain a signature.
 	ErrNoQuerySignature = errors.New("query Signature or SigAlg not found")
 )
 
@@ -39,7 +39,7 @@ var (
 func (sp *ServiceProvider) signQuery(reqT reqType, query, body, relayState string) (string, error) {
 	signingContext, err := GetSigningContext(sp)
 
-	// Encode Query as standard demands. query.Encode() is not standard compliant
+	// Encode Query as standard demands. query.Encode() is not standard compliant.
 	toHash := string(reqT) + "=" + url.QueryEscape(body)
 	if relayState != "" {
 		toHash += "&RelayState=" + url.QueryEscape(relayState)
@@ -63,7 +63,7 @@ func (sp *ServiceProvider) signQuery(reqT reqType, query, body, relayState strin
 }
 
 // validateSig validation of the signature of the Redirect Binding in query values
-// Query is valid if return is nil
+// Query is valid if return is nil.
 func (sp *ServiceProvider) validateQuerySig(query url.Values) error {
 	sig := query.Get("Signature")
 	alg := query.Get("SigAlg")
@@ -88,7 +88,7 @@ func (sp *ServiceProvider) validateQuerySig(query url.Values) error {
 
 	// Encode Query as standard demands.
 	// query.Encode() is not standard compliant
-	// as query encoding order matters
+	// as query encoding order matters.
 	res := respType + "=" + url.QueryEscape(query.Get(respType))
 
 	relayState := query.Get("RelayState")
@@ -98,7 +98,7 @@ func (sp *ServiceProvider) validateQuerySig(query url.Values) error {
 
 	res += "&SigAlg=" + url.QueryEscape(alg)
 
-	// Signature is base64 encoded
+	// Signature is base64 encoded.
 	sigBytes, err := base64.StdEncoding.DecodeString(sig)
 	if err != nil {
 		return fmt.Errorf("failed to decode signature: %w", err)
@@ -123,7 +123,7 @@ func (sp *ServiceProvider) validateQuerySig(query url.Values) error {
 		hashAlg = crypto.SHA512
 		sigAlg = x509.SHA512WithRSA
 	case dsig.RSASHA1SignatureMethod:
-		hashed1 := sha1.Sum([]byte(res)) // #nosec G401
+		hashed1 := sha1.Sum([]byte(res)) // #nosec G401.
 		hashed = hashed1[:]
 		hashAlg = crypto.SHA1
 		sigAlg = x509.SHA1WithRSA
@@ -131,9 +131,9 @@ func (sp *ServiceProvider) validateQuerySig(query url.Values) error {
 		return fmt.Errorf("unsupported signature algorithm: %s", alg)
 	}
 
-	// validate signature
+	// validate signature.
 	for _, cert := range certs {
-		// verify cert is RSA
+		// verify cert is RSA.
 		if cert.SignatureAlgorithm != sigAlg {
 			continue
 		}

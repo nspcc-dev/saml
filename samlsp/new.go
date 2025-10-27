@@ -21,7 +21,7 @@ import (
 	"github.com/nspcc-dev/saml"
 )
 
-// Options represents the parameters for creating a new middleware
+// Options represents the parameters for creating a new middleware.
 type Options struct {
 	EntityID              string
 	URL                   url.URL

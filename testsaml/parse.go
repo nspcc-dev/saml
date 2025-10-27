@@ -15,7 +15,7 @@ import (
 	"net/url"
 )
 
-// ParseRedirectRequest returns the decoded SAML AuthnRequest from an HTTP-Redirect URL
+// ParseRedirectRequest returns the decoded SAML AuthnRequest from an HTTP-Redirect URL.
 func ParseRedirectRequest(u *url.URL) ([]byte, error) {
 	compressedRequest, err := base64.StdEncoding.DecodeString(u.Query().Get("SAMLRequest"))
 	if err != nil {
@@ -28,7 +28,7 @@ func ParseRedirectRequest(u *url.URL) ([]byte, error) {
 	return buf, nil
 }
 
-// ParseRedirectResponse returns the decoded SAML LogoutResponse from an HTTP-Redirect URL
+// ParseRedirectResponse returns the decoded SAML LogoutResponse from an HTTP-Redirect URL.
 func ParseRedirectResponse(u *url.URL) ([]byte, error) {
 	compressedResponse, err := base64.StdEncoding.DecodeString(u.Query().Get("SAMLResponse"))
 	if err != nil {

@@ -14,24 +14,24 @@ import (
 	"github.com/beevik/etree"
 )
 
-// HTTPPostBinding is the official URN for the HTTP-POST binding (transport)
+// HTTPPostBinding is the official URN for the HTTP-POST binding (transport).
 const HTTPPostBinding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
 
-// HTTPRedirectBinding is the official URN for the HTTP-Redirect binding (transport)
+// HTTPRedirectBinding is the official URN for the HTTP-Redirect binding (transport).
 const HTTPRedirectBinding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
 
-// HTTPArtifactBinding is the official URN for the HTTP-Artifact binding (transport)
+// HTTPArtifactBinding is the official URN for the HTTP-Artifact binding (transport).
 const HTTPArtifactBinding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact"
 
-// SOAPBinding is the official URN for the SOAP binding (transport)
+// SOAPBinding is the official URN for the SOAP binding (transport).
 const SOAPBinding = "urn:oasis:names:tc:SAML:2.0:bindings:SOAP"
 
-// SOAPBindingV1 is the URN for the SOAP binding in SAML 1.0
+// SOAPBindingV1 is the URN for the SOAP binding in SAML 1.0.
 const SOAPBindingV1 = "urn:oasis:names:tc:SAML:1.0:bindings:SOAP-binding"
 
 // EntitiesDescriptor represents the SAML object of the same name.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.3.1
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.3.1.
 type EntitiesDescriptor struct {
 	XMLName             xml.Name       `xml:"urn:oasis:names:tc:SAML:2.0:metadata EntitiesDescriptor"`
 	ID                  *string        `xml:",attr,omitempty"`
@@ -43,7 +43,7 @@ type EntitiesDescriptor struct {
 	EntityDescriptors   []EntityDescriptor   `xml:"urn:oasis:names:tc:SAML:2.0:metadata EntityDescriptor"`
 }
 
-// MarshalXML implements xml.Marshaler
+// MarshalXML implements xml.Marshaler.
 func (m EntitiesDescriptor) MarshalXML(e *xml.Encoder, _ xml.StartElement) error {
 	var validUntil *RelaxedTime
 	var cacheDuration *Duration
@@ -68,7 +68,7 @@ func (m EntitiesDescriptor) MarshalXML(e *xml.Encoder, _ xml.StartElement) error
 	return e.Encode(aux)
 }
 
-// UnmarshalXML implements xml.Unmarshaler
+// UnmarshalXML implements xml.Unmarshaler.
 func (m *EntitiesDescriptor) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	type Alias EntitiesDescriptor
 	aux := &struct {
@@ -103,7 +103,7 @@ var Metadata = struct{}{}
 
 // EntityDescriptor represents the SAML EntityDescriptor object.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.3.2
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.3.2.
 type EntityDescriptor struct {
 	XMLName                       xml.Name      `xml:"urn:oasis:names:tc:SAML:2.0:metadata EntityDescriptor"`
 	EntityID                      string        `xml:"entityID,attr"`
@@ -123,7 +123,7 @@ type EntityDescriptor struct {
 	AdditionalMetadataLocations   []string `xml:"AdditionalMetadataLocation"`
 }
 
-// MarshalXML implements xml.Marshaler
+// MarshalXML implements xml.Marshaler.
 func (m EntityDescriptor) MarshalXML(e *xml.Encoder, _ xml.StartElement) error {
 	type Alias EntityDescriptor
 	aux := &struct {
@@ -138,7 +138,7 @@ func (m EntityDescriptor) MarshalXML(e *xml.Encoder, _ xml.StartElement) error {
 	return e.Encode(aux)
 }
 
-// UnmarshalXML implements xml.Unmarshaler
+// UnmarshalXML implements xml.Unmarshaler.
 func (m *EntityDescriptor) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	type Alias EntityDescriptor
 	aux := &struct {
@@ -158,7 +158,7 @@ func (m *EntityDescriptor) UnmarshalXML(d *xml.Decoder, start xml.StartElement) 
 
 // Organization represents the SAML Organization object.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.3.2.1
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.3.2.1.
 type Organization struct {
 	OrganizationNames        []LocalizedName `xml:"OrganizationName"`
 	OrganizationDisplayNames []LocalizedName `xml:"OrganizationDisplayName"`
@@ -167,7 +167,7 @@ type Organization struct {
 
 // LocalizedName represents the SAML type localizedNameType.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.2.4
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.2.4.
 type LocalizedName struct {
 	Lang  string `xml:"http://www.w3.org/XML/1998/namespace lang,attr"`
 	Value string `xml:",chardata"`
@@ -175,7 +175,7 @@ type LocalizedName struct {
 
 // LocalizedURI represents the SAML type localizedURIType.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.2.5
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.2.5.
 type LocalizedURI struct {
 	Lang  string `xml:"http://www.w3.org/XML/1998/namespace lang,attr"`
 	Value string `xml:",chardata"`
@@ -183,7 +183,7 @@ type LocalizedURI struct {
 
 // ContactPerson represents the SAML element ContactPerson.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.3.2.2
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.3.2.2.
 type ContactPerson struct {
 	ContactType      string `xml:"contactType,attr"`
 	Company          string
@@ -195,7 +195,7 @@ type ContactPerson struct {
 
 // RoleDescriptor represents the SAML element RoleDescriptor.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.4.1
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.4.1.
 type RoleDescriptor struct {
 	ID                         string        `xml:",attr,omitempty"`
 	ValidUntil                 time.Time     `xml:"validUntil,attr,omitempty"`
@@ -208,31 +208,31 @@ type RoleDescriptor struct {
 	ContactPeople              []ContactPerson `xml:"ContactPerson,omitempty"`
 }
 
-// KeyDescriptor represents the XMLSEC object of the same name
+// KeyDescriptor represents the XMLSEC object of the same name.
 type KeyDescriptor struct {
 	Use               string             `xml:"use,attr"`
 	KeyInfo           KeyInfo            `xml:"http://www.w3.org/2000/09/xmldsig# KeyInfo"`
 	EncryptionMethods []EncryptionMethod `xml:"EncryptionMethod"`
 }
 
-// EncryptionMethod represents the XMLSEC object of the same name
+// EncryptionMethod represents the XMLSEC object of the same name.
 type EncryptionMethod struct {
 	Algorithm string `xml:"Algorithm,attr"`
 }
 
-// KeyInfo represents the XMLSEC object of the same name
+// KeyInfo represents the XMLSEC object of the same name.
 type KeyInfo struct {
 	XMLName  xml.Name `xml:"http://www.w3.org/2000/09/xmldsig# KeyInfo"`
 	X509Data X509Data `xml:"X509Data"`
 }
 
-// X509Data represents the XMLSEC object of the same name
+// X509Data represents the XMLSEC object of the same name.
 type X509Data struct {
 	XMLName          xml.Name          `xml:"http://www.w3.org/2000/09/xmldsig# X509Data"`
 	X509Certificates []X509Certificate `xml:"X509Certificate"`
 }
 
-// X509Certificate represents the XMLSEC object of the same name
+// X509Certificate represents the XMLSEC object of the same name.
 type X509Certificate struct {
 	XMLName xml.Name `xml:"http://www.w3.org/2000/09/xmldsig# X509Certificate"`
 	Data    string   `xml:",chardata"`
@@ -240,7 +240,7 @@ type X509Certificate struct {
 
 // Endpoint represents the SAML EndpointType object.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.2.2
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.2.2.
 type Endpoint struct {
 	Binding          string `xml:"Binding,attr"`
 	Location         string `xml:"Location,attr"`
@@ -290,7 +290,7 @@ func checkEndpointLocation(binding string, location string) (string, error) {
 	return location, nil
 }
 
-// UnmarshalXML implements xml.Unmarshaler
+// UnmarshalXML implements xml.Unmarshaler.
 func (m *Endpoint) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	type Alias Endpoint
 	aux := &struct {
@@ -319,7 +319,7 @@ func (m *Endpoint) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 
 // IndexedEndpoint represents the SAML IndexedEndpointType object.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.2.3
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.2.3.
 type IndexedEndpoint struct {
 	Binding          string  `xml:"Binding,attr"`
 	Location         string  `xml:"Location,attr"`
@@ -328,7 +328,7 @@ type IndexedEndpoint struct {
 	IsDefault        *bool   `xml:"isDefault,attr"`
 }
 
-// UnmarshalXML implements xml.Unmarshaler
+// UnmarshalXML implements xml.Unmarshaler.
 func (m *IndexedEndpoint) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	type Alias IndexedEndpoint
 	aux := &struct {
@@ -360,9 +360,9 @@ func (m *IndexedEndpoint) UnmarshalXML(d *xml.Decoder, start xml.StartElement) e
 	return nil
 }
 
-// SSODescriptor represents the SAML complex type SSODescriptor
+// SSODescriptor represents the SAML complex type SSODescriptor.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.4.2
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.4.2.
 type SSODescriptor struct {
 	RoleDescriptor
 	ArtifactResolutionServices []IndexedEndpoint `xml:"ArtifactResolutionService"`
@@ -373,7 +373,7 @@ type SSODescriptor struct {
 
 // IDPSSODescriptor represents the SAML IDPSSODescriptorType object.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.4.3
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.4.3.
 type IDPSSODescriptor struct {
 	SSODescriptor
 	XMLName                 xml.Name `xml:"urn:oasis:names:tc:SAML:2.0:metadata IDPSSODescriptor"`
@@ -387,7 +387,7 @@ type IDPSSODescriptor struct {
 	Attributes                 []Attribute `xml:"Attribute"`
 }
 
-// MarshalXML implements xml.Marshaler
+// MarshalXML implements xml.Marshaler.
 func (m IDPSSODescriptor) MarshalXML(e *xml.Encoder, _ xml.StartElement) error {
 	type Alias IDPSSODescriptor
 	aux := &struct {
@@ -402,7 +402,7 @@ func (m IDPSSODescriptor) MarshalXML(e *xml.Encoder, _ xml.StartElement) error {
 	return e.Encode(aux)
 }
 
-// UnmarshalXML implements xml.Unmarshaler
+// UnmarshalXML implements xml.Unmarshaler.
 func (m *IDPSSODescriptor) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	type Alias IDPSSODescriptor
 	aux := &struct {
@@ -422,7 +422,7 @@ func (m *IDPSSODescriptor) UnmarshalXML(d *xml.Decoder, start xml.StartElement) 
 
 // SPSSODescriptor represents the SAML SPSSODescriptorType object.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.4.2
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.4.2.
 type SPSSODescriptor struct {
 	SSODescriptor
 	XMLName                    xml.Name                    `xml:"urn:oasis:names:tc:SAML:2.0:metadata SPSSODescriptor"`
@@ -432,7 +432,7 @@ type SPSSODescriptor struct {
 	AttributeConsumingServices []AttributeConsumingService `xml:"AttributeConsumingService"`
 }
 
-// MarshalXML implements xml.Marshaler
+// MarshalXML implements xml.Marshaler.
 func (m SPSSODescriptor) MarshalXML(e *xml.Encoder, _ xml.StartElement) error {
 	type Alias SPSSODescriptor
 	aux := &struct {
@@ -447,7 +447,7 @@ func (m SPSSODescriptor) MarshalXML(e *xml.Encoder, _ xml.StartElement) error {
 	return e.Encode(aux)
 }
 
-// UnmarshalXML implements xml.Unmarshaler
+// UnmarshalXML implements xml.Unmarshaler.
 func (m *SPSSODescriptor) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	type Alias SPSSODescriptor
 	aux := &struct {
@@ -467,7 +467,7 @@ func (m *SPSSODescriptor) UnmarshalXML(d *xml.Decoder, start xml.StartElement) e
 
 // AttributeConsumingService represents the SAML AttributeConsumingService object.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.4.4.1
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.4.4.1.
 type AttributeConsumingService struct {
 	Index               int                  `xml:"index,attr"`
 	IsDefault           *bool                `xml:"isDefault,attr"`
@@ -478,7 +478,7 @@ type AttributeConsumingService struct {
 
 // RequestedAttribute represents the SAML RequestedAttribute object.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.4.4.2
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.4.4.2.
 type RequestedAttribute struct {
 	Attribute
 	IsRequired *bool `xml:"isRequired,attr"`
@@ -486,7 +486,7 @@ type RequestedAttribute struct {
 
 // AuthnAuthorityDescriptor represents the SAML AuthnAuthorityDescriptor object.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.4.5
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.4.5.
 type AuthnAuthorityDescriptor struct {
 	RoleDescriptor
 	XMLName                    xml.Name       `xml:"urn:oasis:names:tc:SAML:2.0:metadata AuthnAuthorityDescriptor"`
@@ -495,7 +495,7 @@ type AuthnAuthorityDescriptor struct {
 	NameIDFormats              []NameIDFormat `xml:"NameIDFormat"`
 }
 
-// MarshalXML implements xml.Marshaler
+// MarshalXML implements xml.Marshaler.
 func (m AuthnAuthorityDescriptor) MarshalXML(e *xml.Encoder, _ xml.StartElement) error {
 	type Alias AuthnAuthorityDescriptor
 	aux := &struct {
@@ -510,7 +510,7 @@ func (m AuthnAuthorityDescriptor) MarshalXML(e *xml.Encoder, _ xml.StartElement)
 	return e.Encode(aux)
 }
 
-// UnmarshalXML implements xml.Unmarshaler
+// UnmarshalXML implements xml.Unmarshaler.
 func (m *AuthnAuthorityDescriptor) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	type Alias AuthnAuthorityDescriptor
 	aux := &struct {
@@ -530,7 +530,7 @@ func (m *AuthnAuthorityDescriptor) UnmarshalXML(d *xml.Decoder, start xml.StartE
 
 // PDPDescriptor represents the SAML PDPDescriptor object.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.4.6
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.4.6.
 type PDPDescriptor struct {
 	RoleDescriptor
 	XMLName                    xml.Name       `xml:"urn:oasis:names:tc:SAML:2.0:metadata PDPDescriptor"`
@@ -539,7 +539,7 @@ type PDPDescriptor struct {
 	NameIDFormats              []NameIDFormat `xml:"NameIDFormat"`
 }
 
-// MarshalXML implements xml.Marshaler
+// MarshalXML implements xml.Marshaler.
 func (m PDPDescriptor) MarshalXML(e *xml.Encoder, _ xml.StartElement) error {
 	type Alias PDPDescriptor
 	aux := &struct {
@@ -554,7 +554,7 @@ func (m PDPDescriptor) MarshalXML(e *xml.Encoder, _ xml.StartElement) error {
 	return e.Encode(aux)
 }
 
-// UnmarshalXML implements xml.Unmarshaler
+// UnmarshalXML implements xml.Unmarshaler.
 func (m *PDPDescriptor) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	type Alias PDPDescriptor
 	aux := &struct {
@@ -574,7 +574,7 @@ func (m *PDPDescriptor) UnmarshalXML(d *xml.Decoder, start xml.StartElement) err
 
 // AttributeAuthorityDescriptor represents the SAML AttributeAuthorityDescriptor object.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.4.7
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.4.7.
 type AttributeAuthorityDescriptor struct {
 	RoleDescriptor
 	XMLName                    xml.Name       `xml:"urn:oasis:names:tc:SAML:2.0:metadata AttributeAuthorityDescriptor"`
@@ -585,7 +585,7 @@ type AttributeAuthorityDescriptor struct {
 	Attributes                 []Attribute    `xml:"Attribute"`
 }
 
-// MarshalXML implements xml.Marshaler
+// MarshalXML implements xml.Marshaler.
 func (m AttributeAuthorityDescriptor) MarshalXML(e *xml.Encoder, _ xml.StartElement) error {
 	type Alias AttributeAuthorityDescriptor
 	aux := &struct {
@@ -600,7 +600,7 @@ func (m AttributeAuthorityDescriptor) MarshalXML(e *xml.Encoder, _ xml.StartElem
 	return e.Encode(aux)
 }
 
-// UnmarshalXML implements xml.Unmarshaler
+// UnmarshalXML implements xml.Unmarshaler.
 func (m *AttributeAuthorityDescriptor) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	type Alias AttributeAuthorityDescriptor
 	aux := &struct {
@@ -620,7 +620,7 @@ func (m *AttributeAuthorityDescriptor) UnmarshalXML(d *xml.Decoder, start xml.St
 
 // AffiliationDescriptor represents the SAML AffiliationDescriptor object.
 //
-// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.5
+// See http://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf §2.5.
 type AffiliationDescriptor struct {
 	AffiliationOwnerID string        `xml:"affiliationOwnerID,attr"`
 	ID                 string        `xml:",attr"`

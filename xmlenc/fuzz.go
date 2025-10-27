@@ -38,7 +38,7 @@ XZS9naRmawEQxOkZQVoMeKgvu05+V4MniFqdQBINIkr5
 	return k
 }()
 
-// Fuzz is the go-fuzz fuzzing function
+// Fuzz is the go-fuzz fuzzing function.
 func Fuzz(data []byte) int {
 	doc := etree.NewDocument()
 	if err := doc.ReadFromBytes(data); err != nil {

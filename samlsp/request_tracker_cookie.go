@@ -63,7 +63,7 @@ func (t CookieRequestTracker) TrackRequest(w http.ResponseWriter, r *http.Reques
 }
 
 // StopTrackingRequest stops tracking the SAML request given by index, which is a string
-// previously returned from TrackRequest
+// previously returned from TrackRequest.
 func (t CookieRequestTracker) StopTrackingRequest(w http.ResponseWriter, r *http.Request, index string) error {
 	cookie, err := r.Cookie(t.NamePrefix + index)
 	if err != nil {
@@ -77,7 +77,7 @@ func (t CookieRequestTracker) StopTrackingRequest(w http.ResponseWriter, r *http
 	return nil
 }
 
-// GetTrackedRequests returns all the pending tracked requests
+// GetTrackedRequests returns all the pending tracked requests.
 func (t CookieRequestTracker) GetTrackedRequests(r *http.Request) []TrackedRequest {
 	rv := []TrackedRequest{}
 	for _, cookie := range r.Cookies() {

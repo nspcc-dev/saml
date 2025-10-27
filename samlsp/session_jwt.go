@@ -113,7 +113,7 @@ func (c JWTSessionCodec) Decode(signed string) (Session, error) {
 	return claims, nil
 }
 
-// JWTSessionClaims represents the JWT claims in the encoded session
+// JWTSessionClaims represents the JWT claims in the encoded session.
 type JWTSessionClaims struct {
 	jwt.RegisteredClaims
 	Attributes  Attributes `json:"attr"`
@@ -127,7 +127,7 @@ func (c JWTSessionClaims) GetAttributes() Attributes {
 	return c.Attributes
 }
 
-// Attributes is a map of attributes provided in the SAML assertion
+// Attributes is a map of attributes provided in the SAML assertion.
 type Attributes map[string][]string
 
 // Get returns the first attribute named `key` or an empty string if

@@ -15,7 +15,7 @@ import (
 	"github.com/nspcc-dev/saml"
 )
 
-// JWTTrackedRequestCodec encodes TrackedRequests as signed JWTs
+// JWTTrackedRequestCodec encodes TrackedRequests as signed JWTs.
 type JWTTrackedRequestCodec struct {
 	SigningMethod jwt.SigningMethod
 	Audience      string

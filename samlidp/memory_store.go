@@ -46,7 +46,7 @@ func (s *MemoryStore) Put(key string, value interface{}) error {
 	return nil
 }
 
-// Delete removes `key`
+// Delete removes `key`.
 func (s *MemoryStore) Delete(key string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -56,7 +56,7 @@ func (s *MemoryStore) Delete(key string) error {
 
 // List returns all the keys that start with `prefix`. The prefix is
 // stripped from each returned value. So if keys are ["aa", "ab", "cd"]
-// then List("a") would produce []string{"a", "b"}
+// then List("a") would produce []string{"a", "b"}.
 func (s *MemoryStore) List(prefix string) ([]string, error) {
 	rv := []string{}
 	for k := range s.data {

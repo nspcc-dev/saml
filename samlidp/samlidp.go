@@ -20,7 +20,7 @@ import (
 	"github.com/nspcc-dev/saml/logger"
 )
 
-// Options represent the parameters to New() for creating a new IDP server
+// Options represent the parameters to New() for creating a new IDP server.
 type Options struct {
 	URL               url.URL
 	Key               crypto.PrivateKey
@@ -51,7 +51,7 @@ type Server struct {
 	LoginFormTemplate *template.Template
 }
 
-// New returns a new Server
+// New returns a new Server.
 func New(opts Options) (*Server, error) {
 	opts.URL.Path = strings.TrimSuffix(opts.URL.Path, "/")
 

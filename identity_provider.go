@@ -198,7 +198,7 @@ func (idp *IdentityProvider) Metadata() *EntityDescriptor {
 }
 
 // Handler returns an http.Handler that serves the metadata and SSO
-// URLs
+// URLs.
 func (idp *IdentityProvider) Handler() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc(idp.MetadataURL.Path, idp.ServeMetadata)
@@ -206,7 +206,7 @@ func (idp *IdentityProvider) Handler() http.Handler {
 	return mux
 }
 
-// ServeMetadata is an http.HandlerFunc that serves the IDP metadata
+// ServeMetadata is an http.HandlerFunc that serves the IDP metadata.
 func (idp *IdentityProvider) ServeMetadata(w http.ResponseWriter, _ *http.Request) {
 	buf, _ := xml.MarshalIndent(idp.Metadata(), "", "  ")
 	w.Header().Set("Content-Type", "application/samlmetadata+xml")

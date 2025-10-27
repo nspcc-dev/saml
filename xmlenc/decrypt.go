@@ -12,7 +12,6 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-
 	"strings"
 
 	"github.com/beevik/etree"
@@ -35,7 +34,7 @@ func (e ErrCannotFindRequiredElement) Error() string {
 }
 
 // ErrIncorrectTag is returned when Decrypt is passed an element which
-// is neither an EncryptedType nor an EncryptedKey
+// is neither an EncryptedType nor an EncryptedKey.
 var ErrIncorrectTag = fmt.Errorf("tag must be an EncryptedType or EncryptedKey")
 
 // ErrIncorrectKeyLength is returned when the fixed length key is not
@@ -46,7 +45,7 @@ func (e ErrIncorrectKeyLength) Error() string {
 	return fmt.Sprintf("expected key to be %d bytes", int(e))
 }
 
-// ErrIncorrectKeyType is returned when the key is not the correct type
+// ErrIncorrectKeyType is returned when the key is not the correct type.
 type ErrIncorrectKeyType string
 
 func (e ErrIncorrectKeyType) Error() string {

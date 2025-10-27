@@ -16,7 +16,7 @@ import (
 	"github.com/beevik/etree"
 )
 
-// CBC implements Decrypter and Encrypter for block ciphers in CBC mode
+// CBC implements Decrypter and Encrypter for block ciphers in CBC mode.
 type CBC struct {
 	keySize   int
 	algorithm string
@@ -28,7 +28,7 @@ func (e CBC) KeySize() int {
 	return e.keySize
 }
 
-// Algorithm returns the name of the algorithm, as will be found
+// Algorithm returns the name of the algorithm, as will be found.
 // in an xenc:EncryptionMethod element.
 func (e CBC) Algorithm() string {
 	return e.algorithm
@@ -123,7 +123,7 @@ func (e CBC) Decrypt(key interface{}, ciphertextEl *etree.Element) ([]byte, erro
 
 	mode := cipher.NewCBCDecrypter(block, iv)
 	plaintext := make([]byte, len(ciphertext))
-	mode.CryptBlocks(plaintext, ciphertext) // decrypt in place
+	mode.CryptBlocks(plaintext, ciphertext) // decrypt in place.
 
 	plaintext, err = stripPadding(plaintext)
 	if err != nil {
@@ -134,28 +134,28 @@ func (e CBC) Decrypt(key interface{}, ciphertextEl *etree.Element) ([]byte, erro
 }
 
 var (
-	// AES128CBC implements AES128-CBC symetric key mode for encryption and decryption
+	// AES128CBC implements AES128-CBC symetric key mode for encryption and decryption.
 	AES128CBC BlockCipher = CBC{
 		keySize:   16,
 		algorithm: "http://www.w3.org/2001/04/xmlenc#aes128-cbc",
 		cipher:    aes.NewCipher,
 	}
 
-	// AES192CBC implements AES192-CBC symetric key mode for encryption and decryption
+	// AES192CBC implements AES192-CBC symetric key mode for encryption and decryption.
 	AES192CBC BlockCipher = CBC{
 		keySize:   24,
 		algorithm: "http://www.w3.org/2001/04/xmlenc#aes192-cbc",
 		cipher:    aes.NewCipher,
 	}
 
-	// AES256CBC implements AES256-CBC symetric key mode for encryption and decryption
+	// AES256CBC implements AES256-CBC symetric key mode for encryption and decryption.
 	AES256CBC BlockCipher = CBC{
 		keySize:   32,
 		algorithm: "http://www.w3.org/2001/04/xmlenc#aes256-cbc",
 		cipher:    aes.NewCipher,
 	}
 
-	// TripleDES implements 3DES in CBC mode for encryption and decryption
+	// TripleDES implements 3DES in CBC mode for encryption and decryption.
 	TripleDES BlockCipher = CBC{
 		keySize:   8,
 		algorithm: "http://www.w3.org/2001/04/xmlenc#tripledes-cbc",
