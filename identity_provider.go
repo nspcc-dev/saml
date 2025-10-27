@@ -12,6 +12,7 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"html/template"
 	"io"
@@ -290,7 +291,7 @@ func (idp *IdentityProvider) ServeIDPInitiated(w http.ResponseWriter, r *http.Re
 
 	var err error
 	req.ServiceProviderMetadata, err = idp.ServiceProviderProvider.GetServiceProvider(r, serviceProviderID)
-	if err == os.ErrNotExist {
+	if errors.Is(err, os.ErrNotExist) {
 		idp.Logger.Printf("cannot find service provider: %s", serviceProviderID)
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
@@ -452,7 +453,7 @@ func (req *IdpAuthnRequest) Validate() error {
 	// find the service provider
 	serviceProviderID := req.Request.Issuer.Value
 	serviceProvider, err := req.IDP.ServiceProviderProvider.GetServiceProvider(req.HTTPRequest, serviceProviderID)
-	if err == os.ErrNotExist {
+	if errors.Is(err, os.ErrNotExist) {
 		return fmt.Errorf("cannot handle request from unknown service provider %s", serviceProviderID)
 	} else if err != nil {
 		return fmt.Errorf("cannot find service provider %s: %v", serviceProviderID, err)
@@ -870,7 +871,7 @@ func (req *IdpAuthnRequest) MakeAssertionEl() error {
 	signedAssertionEl = req.Assertion.Element()
 
 	certBuf, err := req.getSPEncryptionCert()
-	if err == os.ErrNotExist {
+	if errors.Is(err, os.ErrNotExist) {
 		req.AssertionEl = signedAssertionEl
 		return nil
 	} else if err != nil {

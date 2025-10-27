@@ -990,7 +990,7 @@ func (sp *ServiceProvider) parseResponse(responseEl *etree.Element, possibleRequ
 	var responseHasSignature bool
 	if signatureRequirement == signatureRequired {
 		responseSignatureErr = sp.validateSignature(responseEl)
-		if responseSignatureErr != errSignatureElementNotPresent {
+		if !errors.Is(responseSignatureErr, errSignatureElementNotPresent) {
 			responseHasSignature = true
 		}
 
@@ -1722,7 +1722,7 @@ func (sp *ServiceProvider) ValidateLogoutResponseRedirect(query url.Values) erro
 	}
 
 	if err := sp.validateSignature(doc.Root()); err != nil {
-		if err != errSignatureElementNotPresent || !hasValidSignature {
+		if !errors.Is(err, errSignatureElementNotPresent) || !hasValidSignature {
 			retErr.PrivateErr = err
 			return retErr
 		}

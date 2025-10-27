@@ -6,6 +6,7 @@
 package samlsp
 
 import (
+	"errors"
 	"net"
 	"net/http"
 	"time"
@@ -77,7 +78,7 @@ func (c CookieSessionProvider) DeleteSession(w http.ResponseWriter, r *http.Requ
 
 	cookie, err := r.Cookie(c.Name)
 
-	if err == http.ErrNoCookie {
+	if errors.Is(err, http.ErrNoCookie) {
 		return nil
 	}
 	if err != nil {
@@ -96,7 +97,7 @@ func (c CookieSessionProvider) DeleteSession(w http.ResponseWriter, r *http.Requ
 // ErrNoSession if there is no valid session.
 func (c CookieSessionProvider) GetSession(r *http.Request) (Session, error) {
 	cookie, err := r.Cookie(c.Name)
-	if err == http.ErrNoCookie {
+	if errors.Is(err, http.ErrNoCookie) {
 		return nil, ErrNoSession
 	} else if err != nil {
 		return nil, err
