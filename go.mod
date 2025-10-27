@@ -3,7 +3,7 @@ module github.com/nspcc-dev/saml
 go 1.24.0
 
 require (
-	github.com/beevik/etree v1.5.0
+	github.com/beevik/etree v1.6.0
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/google/go-cmp v0.7.0
 	github.com/mattermost/xml-roundtrip-validator v0.1.0
