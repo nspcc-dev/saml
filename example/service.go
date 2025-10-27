@@ -14,6 +14,7 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/xml"
+	"errors"
 	"flag"
 	"fmt"
 	"net/http"
@@ -48,7 +49,7 @@ func CreateLink(w http.ResponseWriter, r *http.Request) {
 	}
 	links[l.ShortLink] = l
 
-	fmt.Fprintf(w, "%s\n", l.ShortLink)
+	_, _ = fmt.Fprintf(w, "%s\n", l.ShortLink)
 }
 
 // ServeLink handles requests to redirect to a link
@@ -66,7 +67,7 @@ func ListLinks(w http.ResponseWriter, r *http.Request) {
 	account := r.Header.Get("X-Remote-User")
 	for _, l := range links {
 		if l.Owner == account {
-			fmt.Fprintf(w, "%s\n", l.ShortLink)
+			_, _ = fmt.Fprintf(w, "%s\n", l.ShortLink)
 		}
 	}
 }
@@ -77,16 +78,16 @@ func ServeWhoami(w http.ResponseWriter, r *http.Request) {
 
 	session := samlsp.SessionFromContext(r.Context())
 	if session == nil {
-		fmt.Fprintln(w, "not signed in")
+		_, _ = fmt.Fprintln(w, "not signed in")
 		return
 	}
-	fmt.Fprintln(w, "signed in")
+	_, _ = fmt.Fprintln(w, "signed in")
 	sessionWithAttrs, ok := session.(samlsp.SessionWithAttributes)
 	if ok {
-		fmt.Fprintln(w, "attributes:")
+		_, _ = fmt.Fprintln(w, "attributes:")
 		for name, values := range sessionWithAttrs.GetAttributes() {
 			for _, value := range values {
-				fmt.Fprintf(w, "%s: %v\n", name, value)
+				_, _ = fmt.Fprintf(w, "%s: %v\n", name, value)
 			}
 		}
 	}
@@ -186,5 +187,10 @@ func main() {
 	mux.Handle("POST /", samlSP.RequireAccount(http.HandlerFunc(CreateLink)))
 	mux.Handle("GET /", samlSP.RequireAccount(http.HandlerFunc(ListLinks)))
 
-	http.ListenAndServe(":8080", mux)
+	// nolint:gosec
+	if err = http.ListenAndServe(":8080", mux); err != nil {
+		if !errors.Is(err, http.ErrServerClosed) {
+			panic(err)
+		}
+	}
 }

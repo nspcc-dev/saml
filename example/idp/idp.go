@@ -10,6 +10,7 @@ import (
 	"crypto"
 	"crypto/x509"
 	"encoding/pem"
+	"errors"
 	"flag"
 	"net/http"
 	"net/url"
@@ -123,5 +124,10 @@ func main() {
 		logr.Fatalf("%s", err)
 	}
 
-	http.ListenAndServe(":8080", idpServer)
+	// nolint:gosec
+	if err = http.ListenAndServe(":8080", idpServer); err != nil {
+		if !errors.Is(err, http.ErrServerClosed) {
+			logr.Fatalf("ListenAndServe: %s", err)
+		}
+	}
 }
