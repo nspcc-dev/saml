@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BSD-2-Clause
-// Provenance-includes-location: https://github.com/crewjam/saml/blob/a32b643a25a46182499b1278293e265150056d89/schema.go
+// Provenance-includes-location: https://github.com/nspcc-dev/saml/blob/a32b643a25a46182499b1278293e265150056d89/schema.go
 // Provenance-includes-license: BSD-2-Clause
 // Provenance-includes-copyright: 2015-2023 Ross Kinder
 
@@ -360,7 +360,7 @@ func (r *ArtifactResolve) Element() *etree.Element {
 	}
 	if r.Signature != nil {
 		// ADFS requires that <Signature> come before <Artifact>.
-		// ref: https://github.com/crewjam/saml/issues/535
+		// ref: https://github.com/nspcc-dev/saml/issues/535
 		// ref: https://www.wiktorzychla.com/2017/09/adfs-and-saml2-artifact-binding-woes.html
 		el.AddChild(r.Signature)
 	}
