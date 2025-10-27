@@ -584,14 +584,6 @@ func (DefaultAssertionMaker) MakeAssertion(req *IdpAuthnRequest, session *Sessio
 	}
 	if attributeConsumingService == nil {
 		for _, acs := range req.SPSSODescriptor.AttributeConsumingServices {
-			// explicitly copy loop iterator variables
-			//
-			// c.f. https://github.com/golang/go/wiki/CommonMistakes#using-reference-to-loop-iterator-variable
-			//
-			// (note that I'm pretty sure this isn't strictly necessary because we break out of the loop immediately,
-			// but it certainly doesn't hurt anything and may prevent bugs in the future.)
-			acs := acs
-
 			attributeConsumingService = &acs
 			break
 		}
