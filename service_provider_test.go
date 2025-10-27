@@ -2030,6 +2030,8 @@ func TestSPRejectsMalformedResponse(t *testing.T) {
 }
 
 func TestSPInvalidResponses(t *testing.T) {
+	t.Skip("requires meta service to be alive")
+
 	test := NewServiceProviderTest(t)
 	s := ServiceProvider{
 		Key:         test.Key,
@@ -2102,6 +2104,8 @@ func TestSPInvalidResponses(t *testing.T) {
 }
 
 func TestResponseWithDefaultNamespace(t *testing.T) {
+	t.Skip("requires meta service to be alive")
+
 	idpMetadata := golden.Get(t, "TestSPWithDefaultNamespace_idp_metadata")
 	respStr := golden.Get(t, "TestSPWithDefaultNamespace")
 	TimeNow = func() time.Time {
