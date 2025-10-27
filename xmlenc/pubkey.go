@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: BSD-2-Clause
+// Provenance-includes-location: https://github.com/nspcc-dev/saml/blob/a32b643a25a46182499b1278293e265150056d89/xmlenc/pubkey.go
+// Provenance-includes-license: BSD-2-Clause
+// Provenance-includes-copyright: 2015-2023 Ross Kinder
+
 package xmlenc
 
 import (
@@ -15,21 +20,21 @@ import (
 // to use.
 type RSA struct {
 	BlockCipher  BlockCipher
-	DigestMethod DigestMethod // only for OAEP
+	DigestMethod DigestMethod // only for OAEP.
 
 	algorithm    string
 	keyEncrypter func(e RSA, pubKey *rsa.PublicKey, plaintext []byte) ([]byte, error)
 	keyDecrypter func(e RSA, privKey *rsa.PrivateKey, ciphertext []byte) ([]byte, error)
 }
 
-// Algorithm returns the name of the algorithm
+// Algorithm returns the name of the algorithm.
 func (e RSA) Algorithm() string {
 	return e.algorithm
 }
 
 // Encrypt implements encrypter. certificate must be a []byte containing the ASN.1 bytes
 // of certificate containing an RSA public key.
-func (e RSA) Encrypt(certificate interface{}, plaintext []byte, nonce []byte) (*etree.Element, error) {
+func (e RSA) Encrypt(certificate any, plaintext []byte, nonce []byte) (*etree.Element, error) {
 	cert, ok := certificate.(*x509.Certificate)
 	if !ok {
 		return nil, ErrIncorrectKeyType("*x.509 certificate")
@@ -93,7 +98,7 @@ func (e RSA) Encrypt(certificate interface{}, plaintext []byte, nonce []byte) (*
 }
 
 // Decrypt implements Decryptor. `key` must be an *rsa.PrivateKey.
-func (e RSA) Decrypt(key interface{}, ciphertextEl *etree.Element) ([]byte, error) {
+func (e RSA) Decrypt(key any, ciphertextEl *etree.Element) ([]byte, error) {
 	rsaKey, err := validateRSAKeyIfPresent(key, ciphertextEl)
 	if err != nil {
 		return nil, err

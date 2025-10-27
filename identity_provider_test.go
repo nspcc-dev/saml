@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: BSD-2-Clause
+// Provenance-includes-location: https://github.com/nspcc-dev/saml/blob/a32b643a25a46182499b1278293e265150056d89/identity_provider_test.go
+// Provenance-includes-license: BSD-2-Clause
+// Provenance-includes-copyright: 2015-2023 Ross Kinder
+
 package saml
 
 import (
@@ -27,9 +32,9 @@ import (
 	"github.com/beevik/etree"
 	dsig "github.com/russellhaering/goxmldsig"
 
-	"github.com/crewjam/saml/logger"
-	"github.com/crewjam/saml/testsaml"
-	"github.com/crewjam/saml/xmlenc"
+	"github.com/nspcc-dev/saml/logger"
+	"github.com/nspcc-dev/saml/testsaml"
+	"github.com/nspcc-dev/saml/xmlenc"
 )
 
 type IdentityProviderTest struct {
@@ -174,6 +179,8 @@ func TestIDPCanProduceMetadata(t *testing.T) {
 			{
 				SSODescriptor: SSODescriptor{
 					RoleDescriptor: RoleDescriptor{
+						ValidUntil:                 TimeNow().Add(DefaultValidDuration),
+						CacheDuration:              DefaultValidDuration,
 						ProtocolSupportEnumeration: "urn:oasis:names:tc:SAML:2.0:protocol",
 						KeyDescriptors: []KeyDescriptor{
 							{
@@ -232,7 +239,8 @@ func TestIDPHTTPCanHandleMetadataRequest(t *testing.T) {
 	test.IDP.Handler().ServeHTTP(w, r)
 	assert.Check(t, is.Equal(http.StatusOK, w.Code))
 	assert.Check(t, is.Equal("application/samlmetadata+xml", w.Header().Get("Content-type")))
-	assert.Check(t, strings.HasPrefix(w.Body.String(), "<EntityDescriptor"),
+	body := w.Body.String()
+	assert.Check(t, strings.HasPrefix(body, "<EntityDescriptor"),
 		w.Body.String())
 }
 

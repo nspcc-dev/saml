@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: BSD-2-Clause
+// Provenance-includes-location: https://github.com/nspcc-dev/saml/blob/a32b643a25a46182499b1278293e265150056d89/samlsp/request_tracker_cookie.go
+// Provenance-includes-license: BSD-2-Clause
+// Provenance-includes-copyright: 2015-2023 Ross Kinder
+
 package samlsp
 
 import (
@@ -7,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/crewjam/saml"
+	"github.com/nspcc-dev/saml"
 )
 
 var _ RequestTracker = CookieRequestTracker{}
@@ -58,7 +63,7 @@ func (t CookieRequestTracker) TrackRequest(w http.ResponseWriter, r *http.Reques
 }
 
 // StopTrackingRequest stops tracking the SAML request given by index, which is a string
-// previously returned from TrackRequest
+// previously returned from TrackRequest.
 func (t CookieRequestTracker) StopTrackingRequest(w http.ResponseWriter, r *http.Request, index string) error {
 	cookie, err := r.Cookie(t.NamePrefix + index)
 	if err != nil {
@@ -72,7 +77,7 @@ func (t CookieRequestTracker) StopTrackingRequest(w http.ResponseWriter, r *http
 	return nil
 }
 
-// GetTrackedRequests returns all the pending tracked requests
+// GetTrackedRequests returns all the pending tracked requests.
 func (t CookieRequestTracker) GetTrackedRequests(r *http.Request) []TrackedRequest {
 	rv := []TrackedRequest{}
 	for _, cookie := range r.Cookies() {

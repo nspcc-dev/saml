@@ -1,70 +1,93 @@
+# This file contains all available configuration options
+# with their default values.
 version: "2"
+
+# options for analysis running
+run:
+  # timeout for analysis, e.g. 30s, 5m, default is 1m
+  timeout: 5m
+
+  # include test files or not, default is true
+  tests: true
+
+# output configuration options
+output:
+  # colored-line-number|line-number|json|tab|checkstyle|code-climate, default is "colored-line-number"
+  formats:
+    tab:
+      path: stdout
+      colors: false
+
 linters:
-  enable:
-    - bodyclose
-    - gocritic
-    - gocyclo
-    - gosec
-    - misspell
-    - nakedret
-    - prealloc
-    - revive
-    - staticcheck
-    - unconvert
-    - unparam
-  disable:
-    # TODO(ross): fix errors reported by these checkers and enable them
-    - depguard
-    - dupl
-    - gochecknoglobals
-    - gochecknoinits
-    - goconst
-    - lll
+  # all available settings of specific linters
   settings:
-    govet:
-      enable:
-        - asmdecl
-        - assign
-        - atomic
-        - bools
-        - buildtag
-        - cgocall
-        - composites
-        - copylocks
-        - errorsas
-        - httpresponse
-        - loopclosure
-        - lostcancel
-        - nilfunc
-        - printf
-        - shift
-        - stdmethods
-        - structtag
-        - tests
-        - unmarshal
-        - unreachable
-        - unsafeptr
-        - unusedresult
-      disable:
-        - shadow
+    exhaustive:
+      # indicates that switch statements are to be considered exhaustive if a
+      # 'default' case is present, even if all enum members aren't listed in the
+      # switch
+      default-signifies-exhaustive: true
+    gomodguard:
+      blocked:
+        modules:
+          - github.com/pkg/errors:
+              reason: Obsolete after the 1.13 release; use the standard `errors` package
+    revive:
+      rules:
+        - name: duplicated-imports
   exclusions:
     generated: lax
-    rules:
-      - path: (.+)\.go$
-        text: G104 # 'Errors unhandled. (gosec)
+    presets:
+      - comments
+      - common-false-positives
+      - std-error-handling
     paths:
-      - example/.*\.go$
+      - third_party$
+      - builtin$
+  enable:
+    # mandatory linters
+    - govet
+    - revive
+
+    # some default golangci-lint linters
+    - errcheck
+    - godot
+    - ineffassign
+    - staticcheck
+    - unused
+
+    # extra linters
+    # - goconst
+    # - err113
+    # - mnd
+    # - nonamedreturns
+    # - unparam
+    - bidichk
+    - bodyclose
+    - contextcheck
+    - copyloopvar
+    - decorder
+    - durationcheck
+    - errorlint
+    - exhaustive
+    - gomodguard
+    - intrange
+    - misspell
+    - predeclared
+    - reassign
+    - whitespace
+  default: none
+
 formatters:
   enable:
     - gofmt
     - goimports
   settings:
-    goimports:
-      local-prefixes:
-        - github.com/crewjam/saml
+    gofmt:
+      rewrite-rules:
+        - pattern: interface{}
+          replacement: any
   exclusions:
     generated: lax
     paths:
       - third_party$
       - builtin$
-      - examples$

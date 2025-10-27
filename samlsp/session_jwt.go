@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: BSD-2-Clause
+// Provenance-includes-location: https://github.com/nspcc-dev/saml/blob/a32b643a25a46182499b1278293e265150056d89/samlsp/session_jwt.go
+// Provenance-includes-license: BSD-2-Clause
+// Provenance-includes-copyright: 2015-2023 Ross Kinder
+
 package samlsp
 
 import (
@@ -7,7 +12,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 
-	"github.com/crewjam/saml"
+	"github.com/nspcc-dev/saml"
 )
 
 const (
@@ -95,7 +100,7 @@ func (c JWTSessionCodec) Decode(signed string) (Session, error) {
 		jwt.WithIssuer(c.Issuer),
 	)
 	claims := JWTSessionClaims{}
-	_, err := parser.ParseWithClaims(signed, &claims, func(*jwt.Token) (interface{}, error) {
+	_, err := parser.ParseWithClaims(signed, &claims, func(*jwt.Token) (any, error) {
 		return c.Key.Public(), nil
 	})
 	// TODO(ross): check for errors due to bad time and return ErrNoSession
@@ -108,7 +113,7 @@ func (c JWTSessionCodec) Decode(signed string) (Session, error) {
 	return claims, nil
 }
 
-// JWTSessionClaims represents the JWT claims in the encoded session
+// JWTSessionClaims represents the JWT claims in the encoded session.
 type JWTSessionClaims struct {
 	jwt.RegisteredClaims
 	Attributes  Attributes `json:"attr"`
@@ -122,7 +127,7 @@ func (c JWTSessionClaims) GetAttributes() Attributes {
 	return c.Attributes
 }
 
-// Attributes is a map of attributes provided in the SAML assertion
+// Attributes is a map of attributes provided in the SAML assertion.
 type Attributes map[string][]string
 
 // Get returns the first attribute named `key` or an empty string if

@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: BSD-2-Clause
+// Provenance-includes-location: https://github.com/nspcc-dev/saml/blob/a32b643a25a46182499b1278293e265150056d89/xmlenc/xmlenc.go
+// Provenance-includes-license: BSD-2-Clause
+// Provenance-includes-copyright: 2015-2023 Ross Kinder
+
 // Package xmlenc is a partial implementation of the xmlenc standard
 // as described in https://www.w3.org/TR/2002/REC-xmlenc-core-20021210/Overview.html.
 // The purpose of this implementation is to support encrypted SAML assertions.
@@ -18,7 +23,7 @@ var RandReader = rand.Reader
 // XML EncryptedData or EncryptedKey element. The required type of `key` varies
 // depending on the implementation.
 type Encrypter interface {
-	Encrypt(key interface{}, plaintext []byte, nonce []byte) (*etree.Element, error)
+	Encrypt(key any, plaintext []byte, nonce []byte) (*etree.Element, error)
 }
 
 // Decrypter is an interface that decrypts things. The Decrypt() method returns the
@@ -28,7 +33,7 @@ type Encrypter interface {
 // Decrypt() and it will examine the element to determine which Decrypter to use.
 type Decrypter interface {
 	Algorithm() string
-	Decrypt(key interface{}, ciphertextEl *etree.Element) ([]byte, error)
+	Decrypt(key any, ciphertextEl *etree.Element) ([]byte, error)
 }
 
 // DigestMethod represents a digest method such as SHA1, etc.

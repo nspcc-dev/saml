@@ -1,7 +1,13 @@
+// SPDX-License-Identifier: BSD-2-Clause
+// Provenance-includes-location: https://github.com/nspcc-dev/saml/blob/a32b643a25a46182499b1278293e265150056d89/samlidp/user.go
+// Provenance-includes-license: BSD-2-Clause
+// Provenance-includes-copyright: 2015-2023 Ross Kinder
+
 package samlidp
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -84,10 +90,10 @@ func (s *Server) HandlePutUser(w http.ResponseWriter, r *http.Request) {
 	} else {
 		existingUser := User{}
 		err := s.Store.Get(fmt.Sprintf("/users/%s", r.PathValue("id")), &existingUser)
-		switch err {
-		case nil:
+		switch {
+		case err == nil:
 			user.HashedPassword = existingUser.HashedPassword
-		case ErrNotFound:
+		case errors.Is(err, ErrNotFound):
 			// nop
 		default:
 			s.logger.Printf("ERROR: %s", err)

@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: BSD-2-Clause
+// Provenance-includes-location: https://github.com/nspcc-dev/saml/blob/a32b643a25a46182499b1278293e265150056d89/xmlenc/fuzz.go
+// Provenance-includes-license: BSD-2-Clause
+// Provenance-includes-copyright: 2015-2023 Ross Kinder
+
 package xmlenc
 
 import (
@@ -24,7 +29,7 @@ VCmrKY+UewyNIcsLZF0jsNI2qJjiU1vQxN8CQQDfQJnigMQwlfO3/Ga1po6Buu2R
 ztiZhuvuVAoKIv5HnDqC0CNqIUAZtzlozDB3f+xT6SFr+/Plfn4Nlod4JMVGhZNo
 ZaeOlBLBAEX+cAcVtOs/AkBicZOAPv84ABmFfyhXhYaAuacaJLq//jg+t+URUOg+
 XZS9naRmawEQxOkZQVoMeKgvu05+V4MniFqdQBINIkr5
------END RSA PRIVATE KEY-----`
+-----END RSA PRIVATE KEY-----` // #nosec G101 used only for testing
 	b, _ := pem.Decode([]byte(keyStr))
 	k, err := x509.ParsePKCS1PrivateKey(b.Bytes)
 	if err != nil {
@@ -33,7 +38,7 @@ XZS9naRmawEQxOkZQVoMeKgvu05+V4MniFqdQBINIkr5
 	return k
 }()
 
-// Fuzz is the go-fuzz fuzzing function
+// Fuzz is the go-fuzz fuzzing function.
 func Fuzz(data []byte) int {
 	doc := etree.NewDocument()
 	if err := doc.ReadFromBytes(data); err != nil {

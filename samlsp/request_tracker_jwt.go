@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: BSD-2-Clause
+// Provenance-includes-location: https://github.com/nspcc-dev/saml/blob/a32b643a25a46182499b1278293e265150056d89/samlsp/request_tracker_jwt.go
+// Provenance-includes-license: BSD-2-Clause
+// Provenance-includes-copyright: 2015-2023 Ross Kinder
+
 package samlsp
 
 import (
@@ -7,10 +12,10 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 
-	"github.com/crewjam/saml"
+	"github.com/nspcc-dev/saml"
 )
 
-// JWTTrackedRequestCodec encodes TrackedRequests as signed JWTs
+// JWTTrackedRequestCodec encodes TrackedRequests as signed JWTs.
 type JWTTrackedRequestCodec struct {
 	SigningMethod jwt.SigningMethod
 	Audience      string
@@ -56,7 +61,7 @@ func (s JWTTrackedRequestCodec) Decode(signed string) (*TrackedRequest, error) {
 		jwt.WithIssuer(s.Issuer),
 	)
 	claims := JWTTrackedRequestClaims{}
-	_, err := parser.ParseWithClaims(signed, &claims, func(*jwt.Token) (interface{}, error) {
+	_, err := parser.ParseWithClaims(signed, &claims, func(*jwt.Token) (any, error) {
 		return s.Key.Public(), nil
 	})
 	if err != nil {

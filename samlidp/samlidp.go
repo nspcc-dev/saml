@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: BSD-2-Clause
+// Provenance-includes-location: https://github.com/nspcc-dev/saml/blob/a32b643a25a46182499b1278293e265150056d89/samlidp/samlidp.go
+// Provenance-includes-license: BSD-2-Clause
+// Provenance-includes-copyright: 2015-2023 Ross Kinder
+
 // Package samlidp a rudimentary SAML identity provider suitable for
 // testing or as a starting point for a more complex service.
 package samlidp
@@ -11,11 +16,11 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/crewjam/saml"
-	"github.com/crewjam/saml/logger"
+	"github.com/nspcc-dev/saml"
+	"github.com/nspcc-dev/saml/logger"
 )
 
-// Options represent the parameters to New() for creating a new IDP server
+// Options represent the parameters to New() for creating a new IDP server.
 type Options struct {
 	URL               url.URL
 	Key               crypto.PrivateKey
@@ -46,7 +51,7 @@ type Server struct {
 	LoginFormTemplate *template.Template
 }
 
-// New returns a new Server
+// New returns a new Server.
 func New(opts Options) (*Server, error) {
 	opts.URL.Path = strings.TrimSuffix(opts.URL.Path, "/")
 

@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: BSD-2-Clause
+// Provenance-includes-location: https://github.com/nspcc-dev/saml/blob/a32b643a25a46182499b1278293e265150056d89/xmlenc/decrypt.go
+// Provenance-includes-license: BSD-2-Clause
+// Provenance-includes-copyright: 2015-2023 Ross Kinder
+
 package xmlenc
 
 import (
@@ -7,7 +12,6 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-
 	"strings"
 
 	"github.com/beevik/etree"
@@ -30,7 +34,7 @@ func (e ErrCannotFindRequiredElement) Error() string {
 }
 
 // ErrIncorrectTag is returned when Decrypt is passed an element which
-// is neither an EncryptedType nor an EncryptedKey
+// is neither an EncryptedType nor an EncryptedKey.
 var ErrIncorrectTag = fmt.Errorf("tag must be an EncryptedType or EncryptedKey")
 
 // ErrIncorrectKeyLength is returned when the fixed length key is not
@@ -41,18 +45,17 @@ func (e ErrIncorrectKeyLength) Error() string {
 	return fmt.Sprintf("expected key to be %d bytes", int(e))
 }
 
-// ErrIncorrectKeyType is returned when the key is not the correct type
+// ErrIncorrectKeyType is returned when the key is not the correct type.
 type ErrIncorrectKeyType string
 
 func (e ErrIncorrectKeyType) Error() string {
 	return fmt.Sprintf("expected key to be %s", string(e))
 }
 
-// Decrypt decrypts the encrypted data using the provided key. If the
-// data are encrypted using AES or 3DEC, then the key should be a []byte.
-// If the data are encrypted with PKCS1v15 or RSA-OAEP-MGF1P then key should
-// be a *rsa.PrivateKey.
-func Decrypt(key interface{}, ciphertextEl *etree.Element) ([]byte, error) {
+// Decrypt decrypts the encrypted data using the provided key.
+// If the data are encrypted using AES or 3DEC, then the key should be a []byte.
+// If the data are encrypted with PKCS1v15 or RSA-OAEP-MGF1P then key should be a *rsa.PrivateKey.
+func Decrypt(key any, ciphertextEl *etree.Element) ([]byte, error) {
 	encryptionMethodEl := ciphertextEl.FindElement("./EncryptionMethod")
 	if encryptionMethodEl == nil {
 		return nil, ErrCannotFindRequiredElement("EncryptionMethod")
@@ -77,7 +80,7 @@ func getCiphertext(encryptedKey *etree.Element) ([]byte, error) {
 	return ciphertext, nil
 }
 
-func validateRSAKeyIfPresent(key interface{}, encryptedKey *etree.Element) (*rsa.PrivateKey, error) {
+func validateRSAKeyIfPresent(key any, encryptedKey *etree.Element) (*rsa.PrivateKey, error) {
 	rsaKey, ok := key.(*rsa.PrivateKey)
 	if !ok {
 		return nil, errors.New("expected key to be a *rsa.PrivateKey")

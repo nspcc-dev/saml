@@ -1,10 +1,16 @@
+// SPDX-License-Identifier: BSD-2-Clause
+// Provenance-includes-location: https://github.com/nspcc-dev/saml/blob/a32b643a25a46182499b1278293e265150056d89/samlsp/error.go
+// Provenance-includes-license: BSD-2-Clause
+// Provenance-includes-copyright: 2015-2023 Ross Kinder
+
 package samlsp
 
 import (
+	"errors"
 	"log"
 	"net/http"
 
-	"github.com/crewjam/saml"
+	"github.com/nspcc-dev/saml"
 )
 
 // ErrorFunction is a callback that is invoked to return an error to the
@@ -15,7 +21,8 @@ type ErrorFunction func(w http.ResponseWriter, r *http.Request, err error)
 // an message via the standard log package and returns a simple text
 // "Forbidden" message to the user.
 func DefaultOnError(w http.ResponseWriter, _ *http.Request, err error) {
-	if parseErr, ok := err.(*saml.InvalidResponseError); ok {
+	var parseErr *saml.InvalidResponseError
+	if errors.As(err, &parseErr) {
 		log.Printf("WARNING: received invalid saml response: %s (now: %s) %s",
 			parseErr.Response, parseErr.Now, parseErr.PrivateErr)
 	} else {

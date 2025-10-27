@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: BSD-2-Clause
+// Provenance-includes-location: https://github.com/nspcc-dev/saml/blob/a32b643a25a46182499b1278293e265150056d89/xmlenc/gcm.go
+// Provenance-includes-license: BSD-2-Clause
+// Provenance-includes-copyright: 2015-2023 Ross Kinder
+
 package xmlenc
 
 import (
@@ -11,7 +16,7 @@ import (
 	"github.com/beevik/etree"
 )
 
-// GCM implements Decrypter and Encrypter for block ciphers in struct mode
+// GCM implements Decrypter and Encrypter for block ciphers in struct mode.
 type GCM struct {
 	keySize   int
 	algorithm string
@@ -29,8 +34,8 @@ func (e GCM) Algorithm() string {
 	return e.algorithm
 }
 
-// Encrypt encrypts plaintext with key and nonce
-func (e GCM) Encrypt(key interface{}, plaintext []byte, nonce []byte) (*etree.Element, error) {
+// Encrypt encrypts plaintext with key and nonce.
+func (e GCM) Encrypt(key any, plaintext []byte, nonce []byte) (*etree.Element, error) {
 	keyBuf, ok := key.([]byte)
 	if !ok {
 		return nil, ErrIncorrectKeyType("[]byte")
@@ -86,7 +91,7 @@ func (e GCM) Encrypt(key interface{}, plaintext []byte, nonce []byte) (*etree.El
 // EncryptedKey element, then the type of `key` is determined by the registered
 // Decryptor for the EncryptedKey element. Otherwise, `key` must be a []byte of
 // length KeySize().
-func (e GCM) Decrypt(key interface{}, ciphertextEl *etree.Element) ([]byte, error) {
+func (e GCM) Decrypt(key any, ciphertextEl *etree.Element) ([]byte, error) {
 	if encryptedKeyEl := ciphertextEl.FindElement("./KeyInfo/EncryptedKey"); encryptedKeyEl != nil {
 		var err error
 		key, err = Decrypt(key, encryptedKeyEl)
@@ -130,7 +135,7 @@ func (e GCM) Decrypt(key interface{}, ciphertextEl *etree.Element) ([]byte, erro
 }
 
 var (
-	// AES128GCM implements AES128-GCM mode for encryption and decryption
+	// AES128GCM implements AES128-GCM mode for encryption and decryption.
 	AES128GCM BlockCipher = GCM{
 		keySize:   16,
 		algorithm: "http://www.w3.org/2009/xmlenc11#aes128-gcm",

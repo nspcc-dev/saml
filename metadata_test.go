@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: BSD-2-Clause
+// Provenance-includes-location: https://github.com/nspcc-dev/saml/blob/a32b643a25a46182499b1278293e265150056d89/metadata_test.go
+// Provenance-includes-license: BSD-2-Clause
+// Provenance-includes-copyright: 2015-2023 Ross Kinder
+
 package saml
 
 import (
@@ -27,10 +32,11 @@ func TestCanParseMetadata(t *testing.T) {
 		CacheDuration: time.Hour,
 		SPSSODescriptors: []SPSSODescriptor{
 			{
-				XMLName: xml.Name{Space: "urn:oasis:names:tc:SAML:2.0:metadata", Local: "SPSSODescriptor"},
 				SSODescriptor: SSODescriptor{
 					RoleDescriptor: RoleDescriptor{
 						ProtocolSupportEnumeration: "urn:oasis:names:tc:SAML:2.0:protocol",
+						ValidUntil:                 time.Date(2001, time.February, 3, 4, 5, 6, 789000000, time.UTC),
+						CacheDuration:              time.Hour,
 					},
 				},
 				AuthnRequestsSigned:  &False,
@@ -84,7 +90,6 @@ func TestCanParseMetadata(t *testing.T) {
 		},
 	}
 	assert.Check(t, is.DeepEqual(expected, metadata))
-
 }
 
 func TestCanProduceSPMetadata(t *testing.T) {
@@ -101,6 +106,8 @@ func TestCanProduceSPMetadata(t *testing.T) {
 				WantAssertionsSigned: &WantAssertionsSigned,
 				SSODescriptor: SSODescriptor{
 					RoleDescriptor: RoleDescriptor{
+						ValidUntil:                 validUntil,
+						CacheDuration:              DefaultCacheDuration,
 						ProtocolSupportEnumeration: "urn:oasis:names:tc:SAML:2.0:protocol",
 						KeyDescriptors: []KeyDescriptor{
 							{

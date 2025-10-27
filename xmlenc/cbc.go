@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: BSD-2-Clause
+// Provenance-includes-location: https://github.com/nspcc-dev/saml/blob/a32b643a25a46182499b1278293e265150056d89/xmlenc/cbc.go
+// Provenance-includes-license: BSD-2-Clause
+// Provenance-includes-copyright: 2015-2023 Ross Kinder
+
 package xmlenc
 
 import (
@@ -11,7 +16,7 @@ import (
 	"github.com/beevik/etree"
 )
 
-// CBC implements Decrypter and Encrypter for block ciphers in CBC mode
+// CBC implements Decrypter and Encrypter for block ciphers in CBC mode.
 type CBC struct {
 	keySize   int
 	algorithm string
@@ -23,7 +28,7 @@ func (e CBC) KeySize() int {
 	return e.keySize
 }
 
-// Algorithm returns the name of the algorithm, as will be found
+// Algorithm returns the name of the algorithm, as will be found.
 // in an xenc:EncryptionMethod element.
 func (e CBC) Algorithm() string {
 	return e.algorithm
@@ -31,7 +36,7 @@ func (e CBC) Algorithm() string {
 
 // Encrypt encrypts plaintext with key, which should be a []byte of length KeySize().
 // It returns an xenc:EncryptedData element.
-func (e CBC) Encrypt(key interface{}, plaintext []byte, _ []byte) (*etree.Element, error) {
+func (e CBC) Encrypt(key any, plaintext []byte, _ []byte) (*etree.Element, error) {
 	keyBuf, ok := key.([]byte)
 	if !ok {
 		return nil, ErrIncorrectKeyType("[]byte")
@@ -81,7 +86,7 @@ func (e CBC) Encrypt(key interface{}, plaintext []byte, _ []byte) (*etree.Elemen
 // EncryptedKey element, then the type of `key` is determined by the registered
 // Decryptor for the EncryptedKey element. Otherwise, `key` must be a []byte of
 // length KeySize().
-func (e CBC) Decrypt(key interface{}, ciphertextEl *etree.Element) ([]byte, error) {
+func (e CBC) Decrypt(key any, ciphertextEl *etree.Element) ([]byte, error) {
 	// If the key is encrypted, decrypt it.
 	if encryptedKeyEl := ciphertextEl.FindElement("./KeyInfo/EncryptedKey"); encryptedKeyEl != nil {
 		var err error
@@ -118,7 +123,7 @@ func (e CBC) Decrypt(key interface{}, ciphertextEl *etree.Element) ([]byte, erro
 
 	mode := cipher.NewCBCDecrypter(block, iv)
 	plaintext := make([]byte, len(ciphertext))
-	mode.CryptBlocks(plaintext, ciphertext) // decrypt in place
+	mode.CryptBlocks(plaintext, ciphertext) // decrypt in place.
 
 	plaintext, err = stripPadding(plaintext)
 	if err != nil {
@@ -129,28 +134,28 @@ func (e CBC) Decrypt(key interface{}, ciphertextEl *etree.Element) ([]byte, erro
 }
 
 var (
-	// AES128CBC implements AES128-CBC symetric key mode for encryption and decryption
+	// AES128CBC implements AES128-CBC symetric key mode for encryption and decryption.
 	AES128CBC BlockCipher = CBC{
 		keySize:   16,
 		algorithm: "http://www.w3.org/2001/04/xmlenc#aes128-cbc",
 		cipher:    aes.NewCipher,
 	}
 
-	// AES192CBC implements AES192-CBC symetric key mode for encryption and decryption
+	// AES192CBC implements AES192-CBC symetric key mode for encryption and decryption.
 	AES192CBC BlockCipher = CBC{
 		keySize:   24,
 		algorithm: "http://www.w3.org/2001/04/xmlenc#aes192-cbc",
 		cipher:    aes.NewCipher,
 	}
 
-	// AES256CBC implements AES256-CBC symetric key mode for encryption and decryption
+	// AES256CBC implements AES256-CBC symetric key mode for encryption and decryption.
 	AES256CBC BlockCipher = CBC{
 		keySize:   32,
 		algorithm: "http://www.w3.org/2001/04/xmlenc#aes256-cbc",
 		cipher:    aes.NewCipher,
 	}
 
-	// TripleDES implements 3DES in CBC mode for encryption and decryption
+	// TripleDES implements 3DES in CBC mode for encryption and decryption.
 	TripleDES BlockCipher = CBC{
 		keySize:   8,
 		algorithm: "http://www.w3.org/2001/04/xmlenc#tripledes-cbc",

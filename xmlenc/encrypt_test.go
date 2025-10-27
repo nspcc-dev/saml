@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: BSD-2-Clause
+// Provenance-includes-location: https://github.com/nspcc-dev/saml/blob/a32b643a25a46182499b1278293e265150056d89/xmlenc/encrypt_test.go
+// Provenance-includes-license: BSD-2-Clause
+// Provenance-includes-copyright: 2015-2023 Ross Kinder
+
 package xmlenc
 
 import (
@@ -13,7 +18,6 @@ import (
 
 func TestCanEncryptOAEP(t *testing.T) {
 	t.Run("CBC", func(t *testing.T) {
-
 		RandReader = rand.New(rand.NewSource(0)) //nolint:gosec // deterministic random numbers for tests
 
 		pemBlock, _ := pem.Decode(golden.Get(t, "cert.pem"))

@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: BSD-2-Clause
+// Provenance-includes-location: https://github.com/nspcc-dev/saml/blob/a32b643a25a46182499b1278293e265150056d89/identity_provider.go
+// Provenance-includes-license: BSD-2-Clause
+// Provenance-includes-copyright: 2015-2023 Ross Kinder
+
 package saml
 
 import (
@@ -7,6 +12,7 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"html/template"
 	"io"
@@ -21,8 +27,8 @@ import (
 	xrv "github.com/mattermost/xml-roundtrip-validator"
 	dsig "github.com/russellhaering/goxmldsig"
 
-	"github.com/crewjam/saml/logger"
-	"github.com/crewjam/saml/xmlenc"
+	"github.com/nspcc-dev/saml/logger"
+	"github.com/nspcc-dev/saml/xmlenc"
 )
 
 // Session represents a user session. It is returned by the
@@ -132,6 +138,8 @@ func (idp *IdentityProvider) Metadata() *EntityDescriptor {
 				SSODescriptor: SSODescriptor{
 					RoleDescriptor: RoleDescriptor{
 						ProtocolSupportEnumeration: "urn:oasis:names:tc:SAML:2.0:protocol",
+						CacheDuration:              validDuration,
+						ValidUntil:                 TimeNow().Add(validDuration),
 						KeyDescriptors: []KeyDescriptor{
 							{
 								Use: "signing",
@@ -190,7 +198,7 @@ func (idp *IdentityProvider) Metadata() *EntityDescriptor {
 }
 
 // Handler returns an http.Handler that serves the metadata and SSO
-// URLs
+// URLs.
 func (idp *IdentityProvider) Handler() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc(idp.MetadataURL.Path, idp.ServeMetadata)
@@ -198,7 +206,7 @@ func (idp *IdentityProvider) Handler() http.Handler {
 	return mux
 }
 
-// ServeMetadata is an http.HandlerFunc that serves the IDP metadata
+// ServeMetadata is an http.HandlerFunc that serves the IDP metadata.
 func (idp *IdentityProvider) ServeMetadata(w http.ResponseWriter, _ *http.Request) {
 	buf, _ := xml.MarshalIndent(idp.Metadata(), "", "  ")
 	w.Header().Set("Content-Type", "application/samlmetadata+xml")
@@ -283,7 +291,7 @@ func (idp *IdentityProvider) ServeIDPInitiated(w http.ResponseWriter, r *http.Re
 
 	var err error
 	req.ServiceProviderMetadata, err = idp.ServiceProviderProvider.GetServiceProvider(r, serviceProviderID)
-	if err == os.ErrNotExist {
+	if errors.Is(err, os.ErrNotExist) {
 		idp.Logger.Printf("cannot find service provider: %s", serviceProviderID)
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
@@ -366,11 +374,11 @@ func NewIdpAuthnRequest(idp *IdentityProvider, r *http.Request) (*IdpAuthnReques
 	case "GET":
 		compressedRequest, err := base64.StdEncoding.DecodeString(r.URL.Query().Get("SAMLRequest"))
 		if err != nil {
-			return nil, fmt.Errorf("cannot decode request: %s", err)
+			return nil, fmt.Errorf("cannot decode request: %w", err)
 		}
 		req.RequestBuffer, err = io.ReadAll(newSaferFlateReader(bytes.NewReader(compressedRequest)))
 		if err != nil {
-			return nil, fmt.Errorf("cannot decompress request: %s", err)
+			return nil, fmt.Errorf("cannot decompress request: %w", err)
 		}
 		req.RelayState = r.URL.Query().Get("RelayState")
 	case "POST":
@@ -445,16 +453,16 @@ func (req *IdpAuthnRequest) Validate() error {
 	// find the service provider
 	serviceProviderID := req.Request.Issuer.Value
 	serviceProvider, err := req.IDP.ServiceProviderProvider.GetServiceProvider(req.HTTPRequest, serviceProviderID)
-	if err == os.ErrNotExist {
+	if errors.Is(err, os.ErrNotExist) {
 		return fmt.Errorf("cannot handle request from unknown service provider %s", serviceProviderID)
 	} else if err != nil {
-		return fmt.Errorf("cannot find service provider %s: %v", serviceProviderID, err)
+		return fmt.Errorf("cannot find service provider %s: %w", serviceProviderID, err)
 	}
 	req.ServiceProviderMetadata = serviceProvider
 
 	// Check that the ACS URL matches an ACS endpoint in the SP metadata.
 	if err := req.getACSEndpoint(); err != nil {
-		return fmt.Errorf("cannot find assertion consumer service: %v", err)
+		return fmt.Errorf("cannot find assertion consumer service: %w", err)
 	}
 
 	return nil
@@ -577,14 +585,6 @@ func (DefaultAssertionMaker) MakeAssertion(req *IdpAuthnRequest, session *Sessio
 	}
 	if attributeConsumingService == nil {
 		for _, acs := range req.SPSSODescriptor.AttributeConsumingServices {
-			// explicitly copy loop iterator variables
-			//
-			// c.f. https://github.com/golang/go/wiki/CommonMistakes#using-reference-to-loop-iterator-variable
-			//
-			// (note that I'm pretty sure this isn't strictly necessary because we break out of the loop immediately,
-			// but it certainly doesn't hurt anything and may prevent bugs in the future.)
-			acs := acs
-
 			attributeConsumingService = &acs
 			break
 		}
@@ -871,7 +871,7 @@ func (req *IdpAuthnRequest) MakeAssertionEl() error {
 	signedAssertionEl = req.Assertion.Element()
 
 	certBuf, err := req.getSPEncryptionCert()
-	if err == os.ErrNotExist {
+	if errors.Is(err, os.ErrNotExist) {
 		req.AssertionEl = signedAssertionEl
 		return nil
 	} else if err != nil {
@@ -1007,11 +1007,11 @@ func (req *IdpAuthnRequest) getSPEncryptionCert() (*x509.Certificate, error) {
 	certStr = regexp.MustCompile(`\s+`).ReplaceAllString(certStr, "")
 	certBytes, err := base64.StdEncoding.DecodeString(certStr)
 	if err != nil {
-		return nil, fmt.Errorf("cannot decode certificate base64: %v", err)
+		return nil, fmt.Errorf("cannot decode certificate base64: %w", err)
 	}
 	cert, err := x509.ParseCertificate(certBytes)
 	if err != nil {
-		return nil, fmt.Errorf("cannot parse certificate: %v", err)
+		return nil, fmt.Errorf("cannot parse certificate: %w", err)
 	}
 	return cert, nil
 }
@@ -1019,7 +1019,7 @@ func (req *IdpAuthnRequest) getSPEncryptionCert() (*x509.Certificate, error) {
 // unmarshalEtreeHack parses `el` and sets values in the structure `v`.
 //
 // This is a hack -- it first serializes the element, then uses xml.Unmarshal.
-func unmarshalEtreeHack(el *etree.Element, v interface{}) error {
+func unmarshalEtreeHack(el *etree.Element, v any) error {
 	doc := etree.NewDocument()
 	doc.SetRoot(el)
 	buf, err := doc.WriteToBytes()

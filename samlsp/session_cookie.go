@@ -1,11 +1,17 @@
+// SPDX-License-Identifier: BSD-2-Clause
+// Provenance-includes-location: https://github.com/nspcc-dev/saml/blob/a32b643a25a46182499b1278293e265150056d89/samlsp/session_cookie.go
+// Provenance-includes-license: BSD-2-Clause
+// Provenance-includes-copyright: 2015-2023 Ross Kinder
+
 package samlsp
 
 import (
+	"errors"
 	"net"
 	"net/http"
 	"time"
 
-	"github.com/crewjam/saml"
+	"github.com/nspcc-dev/saml"
 )
 
 const defaultSessionCookieName = "token"
@@ -72,7 +78,7 @@ func (c CookieSessionProvider) DeleteSession(w http.ResponseWriter, r *http.Requ
 
 	cookie, err := r.Cookie(c.Name)
 
-	if err == http.ErrNoCookie {
+	if errors.Is(err, http.ErrNoCookie) {
 		return nil
 	}
 	if err != nil {
@@ -91,7 +97,7 @@ func (c CookieSessionProvider) DeleteSession(w http.ResponseWriter, r *http.Requ
 // ErrNoSession if there is no valid session.
 func (c CookieSessionProvider) GetSession(r *http.Request) (Session, error) {
 	cookie, err := r.Cookie(c.Name)
-	if err == http.ErrNoCookie {
+	if errors.Is(err, http.ErrNoCookie) {
 		return nil, ErrNoSession
 	} else if err != nil {
 		return nil, err

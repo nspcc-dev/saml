@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: BSD-2-Clause
+// Provenance-includes-location: https://github.com/nspcc-dev/saml/blob/a32b643a25a46182499b1278293e265150056d89/example/service.go
+// Provenance-includes-license: BSD-2-Clause
+// Provenance-includes-copyright: 2015-2023 Ross Kinder
+
 // This is an example that implements a bitly-esque short link service.
 package main
 
@@ -9,25 +14,26 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/xml"
+	"errors"
 	"flag"
 	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
 
-	"github.com/crewjam/saml/samlsp"
+	"github.com/nspcc-dev/saml/samlsp"
 )
 
 var links = map[string]Link{}
 
-// Link represents a short link
+// Link represents a short link.
 type Link struct {
 	ShortLink string
 	Target    string
 	Owner     string
 }
 
-// CreateLink handles requests to create links
+// CreateLink handles requests to create links.
 func CreateLink(w http.ResponseWriter, r *http.Request) {
 	account := r.Header.Get("X-Remote-User")
 
@@ -43,10 +49,10 @@ func CreateLink(w http.ResponseWriter, r *http.Request) {
 	}
 	links[l.ShortLink] = l
 
-	fmt.Fprintf(w, "%s\n", l.ShortLink)
+	_, _ = fmt.Fprintf(w, "%s\n", l.ShortLink)
 }
 
-// ServeLink handles requests to redirect to a link
+// ServeLink handles requests to redirect to a link.
 func ServeLink(w http.ResponseWriter, r *http.Request) {
 	l, ok := links[strings.TrimPrefix(r.URL.Path, "/")]
 	if !ok {
@@ -56,32 +62,32 @@ func ServeLink(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, l.Target, http.StatusFound)
 }
 
-// ListLinks returns a list of the current user's links
+// ListLinks returns a list of the current user's links.
 func ListLinks(w http.ResponseWriter, r *http.Request) {
 	account := r.Header.Get("X-Remote-User")
 	for _, l := range links {
 		if l.Owner == account {
-			fmt.Fprintf(w, "%s\n", l.ShortLink)
+			_, _ = fmt.Fprintf(w, "%s\n", l.ShortLink)
 		}
 	}
 }
 
-// ServeWhoami serves the basic whoami endpoint
+// ServeWhoami serves the basic whoami endpoint.
 func ServeWhoami(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "text/plain")
 
 	session := samlsp.SessionFromContext(r.Context())
 	if session == nil {
-		fmt.Fprintln(w, "not signed in")
+		_, _ = fmt.Fprintln(w, "not signed in")
 		return
 	}
-	fmt.Fprintln(w, "signed in")
+	_, _ = fmt.Fprintln(w, "signed in")
 	sessionWithAttrs, ok := session.(samlsp.SessionWithAttributes)
 	if ok {
-		fmt.Fprintln(w, "attributes:")
+		_, _ = fmt.Fprintln(w, "attributes:")
 		for name, values := range sessionWithAttrs.GetAttributes() {
 			for _, value := range values {
-				fmt.Fprintf(w, "%s: %v\n", name, value)
+				_, _ = fmt.Fprintf(w, "%s: %v\n", name, value)
 			}
 		}
 	}
@@ -181,5 +187,10 @@ func main() {
 	mux.Handle("POST /", samlSP.RequireAccount(http.HandlerFunc(CreateLink)))
 	mux.Handle("GET /", samlSP.RequireAccount(http.HandlerFunc(ListLinks)))
 
-	http.ListenAndServe(":8080", mux)
+	// nolint:gosec
+	if err = http.ListenAndServe(":8080", mux); err != nil {
+		if !errors.Is(err, http.ErrServerClosed) {
+			panic(err)
+		}
+	}
 }

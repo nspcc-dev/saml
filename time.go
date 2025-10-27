@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: BSD-2-Clause
+// Provenance-includes-location: https://github.com/nspcc-dev/saml/blob/a32b643a25a46182499b1278293e265150056d89/time.go
+// Provenance-includes-license: BSD-2-Clause
+// Provenance-includes-copyright: 2015-2023 Ross Kinder
+
 package saml
 
 import "time"
@@ -8,7 +13,7 @@ type RelaxedTime time.Time
 
 const timeFormat = "2006-01-02T15:04:05.999Z07:00"
 
-// MarshalText implements encoding.TextMarshaler
+// MarshalText implements encoding.TextMarshaler.
 func (m RelaxedTime) MarshalText() ([]byte, error) {
 	// According to section 1.2.2 of the OASIS SAML 1.1 spec, we can't trust
 	// other applications to handle time resolution finer than a millisecond.
@@ -21,7 +26,7 @@ func (m RelaxedTime) String() string {
 	return time.Time(m).Round(time.Millisecond).UTC().Format(timeFormat)
 }
 
-// UnmarshalText implements encoding.TextUnmarshaler
+// UnmarshalText implements encoding.TextUnmarshaler.
 func (m *RelaxedTime) UnmarshalText(text []byte) error {
 	if len(text) == 0 {
 		*m = RelaxedTime(time.Time{})

@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: BSD-2-Clause
+// Provenance-includes-location: https://github.com/nspcc-dev/saml/blob/a32b643a25a46182499b1278293e265150056d89/example/idp/idp.go
+// Provenance-includes-license: BSD-2-Clause
+// Provenance-includes-copyright: 2015-2023 Ross Kinder
+
 // Package main contains an example identity provider implementation.
 package main
 
@@ -5,14 +10,15 @@ import (
 	"crypto"
 	"crypto/x509"
 	"encoding/pem"
+	"errors"
 	"flag"
 	"net/http"
 	"net/url"
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/crewjam/saml/logger"
-	"github.com/crewjam/saml/samlidp"
+	"github.com/nspcc-dev/saml/logger"
+	"github.com/nspcc-dev/saml/samlidp"
 )
 
 var key = func() crypto.PrivateKey {
@@ -118,5 +124,10 @@ func main() {
 		logr.Fatalf("%s", err)
 	}
 
-	http.ListenAndServe(":8080", idpServer)
+	// nolint:gosec
+	if err = http.ListenAndServe(":8080", idpServer); err != nil {
+		if !errors.Is(err, http.ErrServerClosed) {
+			logr.Fatalf("ListenAndServe: %s", err)
+		}
+	}
 }
