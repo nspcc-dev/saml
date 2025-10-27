@@ -82,21 +82,21 @@ func (d *Duration) UnmarshalText(text []byte) error {
 	if match[2] != "" {
 		y, err := strconv.Atoi(match[2])
 		if err != nil {
-			return fmt.Errorf("invalid duration years (%s): %s", text, err)
+			return fmt.Errorf("invalid duration years (%s): %w", text, err)
 		}
 		out += time.Duration(y) * year
 	}
 	if match[3] != "" {
 		m, err := strconv.Atoi(match[3])
 		if err != nil {
-			return fmt.Errorf("invalid duration months (%s): %s", text, err)
+			return fmt.Errorf("invalid duration months (%s): %w", text, err)
 		}
 		out += time.Duration(m) * month
 	}
 	if match[4] != "" {
 		d, err := strconv.Atoi(match[4])
 		if err != nil {
-			return fmt.Errorf("invalid duration days (%s): %s", text, err)
+			return fmt.Errorf("invalid duration days (%s): %w", text, err)
 		}
 		out += time.Duration(d) * day
 	}
@@ -108,21 +108,21 @@ func (d *Duration) UnmarshalText(text []byte) error {
 		if match[1] != "" {
 			h, err := strconv.Atoi(match[1])
 			if err != nil {
-				return fmt.Errorf("invalid duration hours (%s): %s", text, err)
+				return fmt.Errorf("invalid duration hours (%s): %w", text, err)
 			}
 			out += time.Duration(h) * time.Hour
 		}
 		if match[2] != "" {
 			m, err := strconv.Atoi(match[2])
 			if err != nil {
-				return fmt.Errorf("invalid duration minutes (%s): %s", text, err)
+				return fmt.Errorf("invalid duration minutes (%s): %w", text, err)
 			}
 			out += time.Duration(m) * time.Minute
 		}
 		if match[3] != "" {
 			s, err := strconv.ParseFloat(match[3], 64)
 			if err != nil {
-				return fmt.Errorf("invalid duration seconds (%s): %s", text, err)
+				return fmt.Errorf("invalid duration seconds (%s): %w", text, err)
 			}
 			out += time.Duration(s * float64(time.Second))
 		}

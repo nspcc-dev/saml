@@ -374,11 +374,11 @@ func NewIdpAuthnRequest(idp *IdentityProvider, r *http.Request) (*IdpAuthnReques
 	case "GET":
 		compressedRequest, err := base64.StdEncoding.DecodeString(r.URL.Query().Get("SAMLRequest"))
 		if err != nil {
-			return nil, fmt.Errorf("cannot decode request: %s", err)
+			return nil, fmt.Errorf("cannot decode request: %w", err)
 		}
 		req.RequestBuffer, err = io.ReadAll(newSaferFlateReader(bytes.NewReader(compressedRequest)))
 		if err != nil {
-			return nil, fmt.Errorf("cannot decompress request: %s", err)
+			return nil, fmt.Errorf("cannot decompress request: %w", err)
 		}
 		req.RelayState = r.URL.Query().Get("RelayState")
 	case "POST":
@@ -456,13 +456,13 @@ func (req *IdpAuthnRequest) Validate() error {
 	if errors.Is(err, os.ErrNotExist) {
 		return fmt.Errorf("cannot handle request from unknown service provider %s", serviceProviderID)
 	} else if err != nil {
-		return fmt.Errorf("cannot find service provider %s: %v", serviceProviderID, err)
+		return fmt.Errorf("cannot find service provider %s: %w", serviceProviderID, err)
 	}
 	req.ServiceProviderMetadata = serviceProvider
 
 	// Check that the ACS URL matches an ACS endpoint in the SP metadata.
 	if err := req.getACSEndpoint(); err != nil {
-		return fmt.Errorf("cannot find assertion consumer service: %v", err)
+		return fmt.Errorf("cannot find assertion consumer service: %w", err)
 	}
 
 	return nil
@@ -1007,11 +1007,11 @@ func (req *IdpAuthnRequest) getSPEncryptionCert() (*x509.Certificate, error) {
 	certStr = regexp.MustCompile(`\s+`).ReplaceAllString(certStr, "")
 	certBytes, err := base64.StdEncoding.DecodeString(certStr)
 	if err != nil {
-		return nil, fmt.Errorf("cannot decode certificate base64: %v", err)
+		return nil, fmt.Errorf("cannot decode certificate base64: %w", err)
 	}
 	cert, err := x509.ParseCertificate(certBytes)
 	if err != nil {
-		return nil, fmt.Errorf("cannot parse certificate: %v", err)
+		return nil, fmt.Errorf("cannot parse certificate: %w", err)
 	}
 	return cert, nil
 }

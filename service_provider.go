@@ -404,7 +404,7 @@ func (sp *ServiceProvider) getIDPSigningCerts() ([]*x509.Certificate, error) {
 		certStr = regex.ReplaceAllString(certStr, "")
 		certBytes, err := base64.StdEncoding.DecodeString(certStr)
 		if err != nil {
-			return nil, fmt.Errorf("cannot parse certificate: %s", err)
+			return nil, fmt.Errorf("cannot parse certificate: %w", err)
 		}
 
 		parsedCert, err := x509.ParseCertificate(certBytes)
@@ -749,7 +749,7 @@ func (sp *ServiceProvider) handleArtifactRequest(ctx context.Context, artifactID
 
 	artifactResolveRequest, err := sp.MakeArtifactResolveRequest(artifactID)
 	if err != nil {
-		retErr.PrivateErr = fmt.Errorf("cannot generate artifact resolution request: %s", err)
+		retErr.PrivateErr = fmt.Errorf("cannot generate artifact resolution request: %w", err)
 		return nil, retErr
 	}
 
@@ -773,7 +773,7 @@ func (sp *ServiceProvider) handleArtifactRequest(ctx context.Context, artifactID
 	}
 	response, err := httpClient.Do(req)
 	if err != nil {
-		retErr.PrivateErr = fmt.Errorf("cannot resolve artifact: %s", err)
+		retErr.PrivateErr = fmt.Errorf("cannot resolve artifact: %w", err)
 		return nil, retErr
 	}
 	defer func() {
@@ -787,7 +787,7 @@ func (sp *ServiceProvider) handleArtifactRequest(ctx context.Context, artifactID
 	}
 	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
-		retErr.PrivateErr = fmt.Errorf("Error during artifact resolution: %s", err)
+		retErr.PrivateErr = fmt.Errorf("Error during artifact resolution: %w", err)
 		return nil, retErr
 	}
 	assertion, err := sp.ParseXMLArtifactResponse(responseBody, possibleRequestIDs, artifactResolveRequest.ID, *req.URL)
@@ -804,7 +804,7 @@ func (sp *ServiceProvider) parseResponseHTTP(req *http.Request, possibleRequestI
 
 	rawResponseBuf, err := base64.StdEncoding.DecodeString(req.PostForm.Get("SAMLResponse"))
 	if err != nil {
-		retErr.PrivateErr = fmt.Errorf("cannot parse base64: %s", err)
+		retErr.PrivateErr = fmt.Errorf("cannot parse base64: %w", err)
 		return nil, retErr
 	}
 
@@ -834,13 +834,13 @@ func (sp *ServiceProvider) ParseXMLArtifactResponse(soapResponseXML []byte, poss
 
 	// ensure that the response XML is well-formed before we parse it
 	if err := xrv.Validate(bytes.NewReader(soapResponseXML)); err != nil {
-		retErr.PrivateErr = fmt.Errorf("invalid xml: %s", err)
+		retErr.PrivateErr = fmt.Errorf("invalid xml: %w", err)
 		return nil, retErr
 	}
 
 	doc := etree.NewDocument()
 	if err := doc.ReadFromBytes(soapResponseXML); err != nil {
-		retErr.PrivateErr = fmt.Errorf("cannot unmarshal response: %s", err)
+		retErr.PrivateErr = fmt.Errorf("cannot unmarshal response: %w", err)
 		return nil, retErr
 	}
 	if doc.Root() == nil {
@@ -946,7 +946,7 @@ func (sp *ServiceProvider) ParseXMLResponse(decodedResponseXML []byte, possibleR
 
 	// ensure that the response XML is well-formed before we parse it.
 	if err := xrv.Validate(bytes.NewReader(decodedResponseXML)); err != nil {
-		retErr.PrivateErr = fmt.Errorf("invalid xml: %s", err)
+		retErr.PrivateErr = fmt.Errorf("invalid xml: %w", err)
 		return nil, retErr
 	}
 
@@ -1000,7 +1000,7 @@ func (sp *ServiceProvider) parseResponse(responseEl *etree.Element, possibleRequ
 	{
 		var response Response
 		if err := unmarshalElement(responseEl, &response); err != nil {
-			return nil, fmt.Errorf("cannot unmarshal response: %v", err)
+			return nil, fmt.Errorf("cannot unmarshal response: %w", err)
 		}
 
 		// If the response is *not* signed, the Destination may be omitted.
@@ -1114,7 +1114,7 @@ func (sp *ServiceProvider) validateRequestID(response Response, possibleRequestI
 func (sp *ServiceProvider) parseEncryptedAssertion(encryptedAssertionEl *etree.Element, possibleRequestIDs []string, now time.Time, signatureRequirement signatureRequirement) (*Assertion, error) {
 	assertionEl, err := sp.decryptElement(encryptedAssertionEl)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decrypt EncryptedAssertion: %v", err)
+		return nil, fmt.Errorf("failed to decrypt EncryptedAssertion: %w", err)
 	}
 	return sp.parseAssertion(assertionEl, possibleRequestIDs, now, signatureRequirement)
 }
@@ -1131,7 +1131,7 @@ func (sp *ServiceProvider) decryptElement(encryptedEl *etree.Element) (*etree.El
 		var err error
 		key, err = xmlenc.Decrypt(sp.Key, keyEl)
 		if err != nil {
-			return nil, fmt.Errorf("failed to decrypt key from response: %s", err)
+			return nil, fmt.Errorf("failed to decrypt key from response: %w", err)
 		}
 	}
 
@@ -1141,12 +1141,12 @@ func (sp *ServiceProvider) decryptElement(encryptedEl *etree.Element) (*etree.El
 	}
 
 	if err := xrv.Validate(bytes.NewReader(plaintextEl)); err != nil {
-		return nil, fmt.Errorf("plaintext response contains invalid XML: %s", err)
+		return nil, fmt.Errorf("plaintext response contains invalid XML: %w", err)
 	}
 
 	doc := etree.NewDocument()
 	if err := doc.ReadFromBytes(plaintextEl); err != nil {
-		return nil, fmt.Errorf("cannot parse plaintext response %v", err)
+		return nil, fmt.Errorf("cannot parse plaintext response %w", err)
 	}
 	return doc.Root(), nil
 }
@@ -1271,13 +1271,13 @@ func (sp *ServiceProvider) validateSignature(el *etree.Element) error {
 	if sp.IDPMetadata != nil && sp.IDPCertificateFingerprint == nil && sp.IDPCertificateFingerprintAlgorithm == nil && sp.IDPCertificate == nil {
 		certs, err = sp.getIDPSigningCerts()
 		if err != nil {
-			return fmt.Errorf("cannot validate signature on %s: %v", el.Tag, err)
+			return fmt.Errorf("cannot validate signature on %s: %w", el.Tag, err)
 		}
 	}
 	if sp.IDPMetadata != nil && sp.IDPCertificateFingerprint != nil && sp.IDPCertificateFingerprintAlgorithm != nil && sp.IDPCertificate == nil {
 		certs, err = sp.getCertBasedOnFingerprint(el)
 		if err != nil {
-			return fmt.Errorf("cannot validate signature on %s: %v", el.Tag, err)
+			return fmt.Errorf("cannot validate signature on %s: %w", el.Tag, err)
 		}
 	}
 	if sp.IDPMetadata != nil && sp.IDPCertificateFingerprint == nil && sp.IDPCertificateFingerprintAlgorithm == nil && sp.IDPCertificate != nil {
@@ -1320,15 +1320,15 @@ func (sp *ServiceProvider) validateSignature(el *etree.Element) error {
 
 	ctx, err := etreeutils.NSBuildParentContext(el)
 	if err != nil {
-		return fmt.Errorf("cannot validate signature on %s: %v", el.Tag, err)
+		return fmt.Errorf("cannot validate signature on %s: %w", el.Tag, err)
 	}
 	ctx, err = ctx.SubContext(el)
 	if err != nil {
-		return fmt.Errorf("cannot validate signature on %s: %v", el.Tag, err)
+		return fmt.Errorf("cannot validate signature on %s: %w", el.Tag, err)
 	}
 	el, err = etreeutils.NSDetatch(ctx, el)
 	if err != nil {
-		return fmt.Errorf("cannot validate signature on %s: %v", el.Tag, err)
+		return fmt.Errorf("cannot validate signature on %s: %w", el.Tag, err)
 	}
 
 	if sp.SignatureVerifier != nil {
@@ -1336,7 +1336,7 @@ func (sp *ServiceProvider) validateSignature(el *etree.Element) error {
 	}
 
 	if _, err := validationContext.Validate(el); err != nil {
-		return fmt.Errorf("cannot validate signature on %s: %v", el.Tag, err)
+		return fmt.Errorf("cannot validate signature on %s: %w", el.Tag, err)
 	}
 
 	return nil
@@ -1632,7 +1632,7 @@ func (sp *ServiceProvider) ValidateLogoutResponseRequest(req *http.Request) erro
 
 	err := req.ParseForm()
 	if err != nil {
-		return fmt.Errorf("unable to parse form: %v", err)
+		return fmt.Errorf("unable to parse form: %w", err)
 	}
 
 	return sp.ValidateLogoutResponseForm(req.PostForm.Get("SAMLResponse"))
@@ -1646,14 +1646,14 @@ func (sp *ServiceProvider) ValidateLogoutResponseForm(postFormData string) error
 
 	rawResponseBuf, err := base64.StdEncoding.DecodeString(postFormData)
 	if err != nil {
-		retErr.PrivateErr = fmt.Errorf("unable to parse base64: %s", err)
+		retErr.PrivateErr = fmt.Errorf("unable to parse base64: %w", err)
 		return retErr
 	}
 	retErr.Response = string(rawResponseBuf)
 
 	// TODO(ross): add test case for this (SLO does not have tests right now)
 	if err := xrv.Validate(bytes.NewReader(rawResponseBuf)); err != nil {
-		return fmt.Errorf("response contains invalid XML: %s", err)
+		return fmt.Errorf("response contains invalid XML: %w", err)
 	}
 
 	doc := etree.NewDocument()
@@ -1687,7 +1687,7 @@ func (sp *ServiceProvider) ValidateLogoutResponseRedirect(query url.Values) erro
 
 	rawResponseBuf, err := base64.StdEncoding.DecodeString(queryParameterData)
 	if err != nil {
-		retErr.PrivateErr = fmt.Errorf("unable to parse base64: %s", err)
+		retErr.PrivateErr = fmt.Errorf("unable to parse base64: %w", err)
 		return retErr
 	}
 	retErr.Response = string(rawResponseBuf)
@@ -1780,7 +1780,7 @@ func findChildren(parentEl *etree.Element, childNS string, childTag string) ([]*
 
 		ns, err := ctx.LookupPrefix(childEl.Space)
 		if err != nil {
-			return nil, fmt.Errorf("[%s]:%s cannot find prefix %s: %v", childNS, childTag, childEl.Space, err)
+			return nil, fmt.Errorf("[%s]:%s cannot find prefix %s: %w", childNS, childTag, childEl.Space, err)
 		}
 		if ns != childNS {
 			continue
