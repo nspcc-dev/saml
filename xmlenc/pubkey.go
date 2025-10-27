@@ -34,7 +34,7 @@ func (e RSA) Algorithm() string {
 
 // Encrypt implements encrypter. certificate must be a []byte containing the ASN.1 bytes
 // of certificate containing an RSA public key.
-func (e RSA) Encrypt(certificate interface{}, plaintext []byte, nonce []byte) (*etree.Element, error) {
+func (e RSA) Encrypt(certificate any, plaintext []byte, nonce []byte) (*etree.Element, error) {
 	cert, ok := certificate.(*x509.Certificate)
 	if !ok {
 		return nil, ErrIncorrectKeyType("*x.509 certificate")
@@ -98,7 +98,7 @@ func (e RSA) Encrypt(certificate interface{}, plaintext []byte, nonce []byte) (*
 }
 
 // Decrypt implements Decryptor. `key` must be an *rsa.PrivateKey.
-func (e RSA) Decrypt(key interface{}, ciphertextEl *etree.Element) ([]byte, error) {
+func (e RSA) Decrypt(key any, ciphertextEl *etree.Element) ([]byte, error) {
 	rsaKey, err := validateRSAKeyIfPresent(key, ciphertextEl)
 	if err != nil {
 		return nil, err

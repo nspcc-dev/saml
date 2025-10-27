@@ -35,7 +35,7 @@ func (e GCM) Algorithm() string {
 }
 
 // Encrypt encrypts plaintext with key and nonce.
-func (e GCM) Encrypt(key interface{}, plaintext []byte, nonce []byte) (*etree.Element, error) {
+func (e GCM) Encrypt(key any, plaintext []byte, nonce []byte) (*etree.Element, error) {
 	keyBuf, ok := key.([]byte)
 	if !ok {
 		return nil, ErrIncorrectKeyType("[]byte")
@@ -91,7 +91,7 @@ func (e GCM) Encrypt(key interface{}, plaintext []byte, nonce []byte) (*etree.El
 // EncryptedKey element, then the type of `key` is determined by the registered
 // Decryptor for the EncryptedKey element. Otherwise, `key` must be a []byte of
 // length KeySize().
-func (e GCM) Decrypt(key interface{}, ciphertextEl *etree.Element) ([]byte, error) {
+func (e GCM) Decrypt(key any, ciphertextEl *etree.Element) ([]byte, error) {
 	if encryptedKeyEl := ciphertextEl.FindElement("./KeyInfo/EncryptedKey"); encryptedKeyEl != nil {
 		var err error
 		key, err = Decrypt(key, encryptedKeyEl)

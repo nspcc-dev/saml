@@ -1019,7 +1019,7 @@ func (req *IdpAuthnRequest) getSPEncryptionCert() (*x509.Certificate, error) {
 // unmarshalEtreeHack parses `el` and sets values in the structure `v`.
 //
 // This is a hack -- it first serializes the element, then uses xml.Unmarshal.
-func unmarshalEtreeHack(el *etree.Element, v interface{}) error {
+func unmarshalEtreeHack(el *etree.Element, v any) error {
 	doc := etree.NewDocument()
 	doc.SetRoot(el)
 	buf, err := doc.WriteToBytes()

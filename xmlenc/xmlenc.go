@@ -23,7 +23,7 @@ var RandReader = rand.Reader
 // XML EncryptedData or EncryptedKey element. The required type of `key` varies
 // depending on the implementation.
 type Encrypter interface {
-	Encrypt(key interface{}, plaintext []byte, nonce []byte) (*etree.Element, error)
+	Encrypt(key any, plaintext []byte, nonce []byte) (*etree.Element, error)
 }
 
 // Decrypter is an interface that decrypts things. The Decrypt() method returns the
@@ -33,7 +33,7 @@ type Encrypter interface {
 // Decrypt() and it will examine the element to determine which Decrypter to use.
 type Decrypter interface {
 	Algorithm() string
-	Decrypt(key interface{}, ciphertextEl *etree.Element) ([]byte, error)
+	Decrypt(key any, ciphertextEl *etree.Element) ([]byte, error)
 }
 
 // DigestMethod represents a digest method such as SHA1, etc.

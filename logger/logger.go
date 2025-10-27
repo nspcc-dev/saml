@@ -14,23 +14,23 @@ import (
 // Interface provides the minimal logging interface.
 type Interface interface {
 	// Printf prints to the logger using the format.
-	Printf(format string, v ...interface{})
+	Printf(format string, v ...any)
 	// Print prints to the logger.
-	Print(v ...interface{})
+	Print(v ...any)
 	// Println prints new line.
-	Println(v ...interface{})
+	Println(v ...any)
 	// Fatal is equivalent to Print() followed by a call to os.Exit(1).
-	Fatal(v ...interface{})
+	Fatal(v ...any)
 	// Fatalf is equivalent to Printf() followed by a call to os.Exit(1).
-	Fatalf(format string, v ...interface{})
+	Fatalf(format string, v ...any)
 	// Fatalln is equivalent to Println() followed by a call to os.Exit(1).
-	Fatalln(v ...interface{})
+	Fatalln(v ...any)
 	// Panic is equivalent to Print() followed by a call to panic().
-	Panic(v ...interface{})
+	Panic(v ...any)
 	// Panicf is equivalent to Printf() followed by a call to panic().
-	Panicf(format string, v ...interface{})
+	Panicf(format string, v ...any)
 	// Panicln is equivalent to Println() followed by a call to panic().
-	Panicln(v ...interface{})
+	Panicln(v ...any)
 }
 
 // DefaultLogger logs messages to os.Stdout.

@@ -52,11 +52,10 @@ func (e ErrIncorrectKeyType) Error() string {
 	return fmt.Sprintf("expected key to be %s", string(e))
 }
 
-// Decrypt decrypts the encrypted data using the provided key. If the
-// data are encrypted using AES or 3DEC, then the key should be a []byte.
-// If the data are encrypted with PKCS1v15 or RSA-OAEP-MGF1P then key should
-// be a *rsa.PrivateKey.
-func Decrypt(key interface{}, ciphertextEl *etree.Element) ([]byte, error) {
+// Decrypt decrypts the encrypted data using the provided key.
+// If the data are encrypted using AES or 3DEC, then the key should be a []byte.
+// If the data are encrypted with PKCS1v15 or RSA-OAEP-MGF1P then key should be a *rsa.PrivateKey.
+func Decrypt(key any, ciphertextEl *etree.Element) ([]byte, error) {
 	encryptionMethodEl := ciphertextEl.FindElement("./EncryptionMethod")
 	if encryptionMethodEl == nil {
 		return nil, ErrCannotFindRequiredElement("EncryptionMethod")
@@ -81,7 +80,7 @@ func getCiphertext(encryptedKey *etree.Element) ([]byte, error) {
 	return ciphertext, nil
 }
 
-func validateRSAKeyIfPresent(key interface{}, encryptedKey *etree.Element) (*rsa.PrivateKey, error) {
+func validateRSAKeyIfPresent(key any, encryptedKey *etree.Element) (*rsa.PrivateKey, error) {
 	rsaKey, ok := key.(*rsa.PrivateKey)
 	if !ok {
 		return nil, errors.New("expected key to be a *rsa.PrivateKey")

@@ -61,7 +61,7 @@ func (s JWTTrackedRequestCodec) Decode(signed string) (*TrackedRequest, error) {
 		jwt.WithIssuer(s.Issuer),
 	)
 	claims := JWTTrackedRequestClaims{}
-	_, err := parser.ParseWithClaims(signed, &claims, func(*jwt.Token) (interface{}, error) {
+	_, err := parser.ParseWithClaims(signed, &claims, func(*jwt.Token) (any, error) {
 		return s.Key.Public(), nil
 	})
 	if err != nil {

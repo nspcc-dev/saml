@@ -19,7 +19,7 @@ type MemoryStore struct {
 }
 
 // Get fetches the data stored in `key` and unmarshals it into `value`.
-func (s *MemoryStore) Get(key string, value interface{}) error {
+func (s *MemoryStore) Get(key string, value any) error {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -31,7 +31,7 @@ func (s *MemoryStore) Get(key string, value interface{}) error {
 }
 
 // Put marshals `value` and stores it in `key`.
-func (s *MemoryStore) Put(key string, value interface{}) error {
+func (s *MemoryStore) Put(key string, value any) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if s.data == nil {

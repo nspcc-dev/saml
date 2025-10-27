@@ -100,7 +100,7 @@ func (c JWTSessionCodec) Decode(signed string) (Session, error) {
 		jwt.WithIssuer(c.Issuer),
 	)
 	claims := JWTSessionClaims{}
-	_, err := parser.ParseWithClaims(signed, &claims, func(*jwt.Token) (interface{}, error) {
+	_, err := parser.ParseWithClaims(signed, &claims, func(*jwt.Token) (any, error) {
 		return c.Key.Public(), nil
 	})
 	// TODO(ross): check for errors due to bad time and return ErrNoSession

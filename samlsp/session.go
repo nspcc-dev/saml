@@ -14,7 +14,7 @@ import (
 )
 
 // Session is an interface implemented to contain a session.
-type Session interface{}
+type Session any
 
 // SessionWithAttributes is a session that can expose the
 // attributes provided by the SAML identity provider.

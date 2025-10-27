@@ -36,7 +36,7 @@ func (e CBC) Algorithm() string {
 
 // Encrypt encrypts plaintext with key, which should be a []byte of length KeySize().
 // It returns an xenc:EncryptedData element.
-func (e CBC) Encrypt(key interface{}, plaintext []byte, _ []byte) (*etree.Element, error) {
+func (e CBC) Encrypt(key any, plaintext []byte, _ []byte) (*etree.Element, error) {
 	keyBuf, ok := key.([]byte)
 	if !ok {
 		return nil, ErrIncorrectKeyType("[]byte")
@@ -86,7 +86,7 @@ func (e CBC) Encrypt(key interface{}, plaintext []byte, _ []byte) (*etree.Elemen
 // EncryptedKey element, then the type of `key` is determined by the registered
 // Decryptor for the EncryptedKey element. Otherwise, `key` must be a []byte of
 // length KeySize().
-func (e CBC) Decrypt(key interface{}, ciphertextEl *etree.Element) ([]byte, error) {
+func (e CBC) Decrypt(key any, ciphertextEl *etree.Element) ([]byte, error) {
 	// If the key is encrypted, decrypt it.
 	if encryptedKeyEl := ciphertextEl.FindElement("./KeyInfo/EncryptedKey"); encryptedKeyEl != nil {
 		var err error

@@ -1125,7 +1125,7 @@ func (sp *ServiceProvider) decryptElement(encryptedEl *etree.Element) (*etree.El
 		return nil, err
 	}
 
-	var key interface{} = sp.Key
+	var key any = sp.Key
 	keyEl := encryptedEl.FindElement("./EncryptedKey")
 	if keyEl != nil {
 		var err error
@@ -1852,7 +1852,7 @@ func elementToBytes(el *etree.Element) ([]byte, error) {
 }
 
 // unmarshalElement serializes el into v by serializing el and then parsing it with xml.Unmarshal.
-func unmarshalElement(el *etree.Element, v interface{}) error {
+func unmarshalElement(el *etree.Element, v any) error {
 	buf, err := elementToBytes(el)
 	if err != nil {
 		return err
