@@ -70,7 +70,7 @@ func (d *Duration) UnmarshalText(text []byte) error {
 
 	var (
 		out  time.Duration
-		sign time.Duration = 1
+		sign = 1
 	)
 	match := durationRegexp.FindStringSubmatch(string(text))
 	if match == nil || strings.Join(match[2:6], "") == "" {
@@ -128,6 +128,6 @@ func (d *Duration) UnmarshalText(text []byte) error {
 		}
 	}
 
-	*d = Duration(sign * out)
+	*d = Duration(out * time.Duration(sign))
 	return nil
 }
