@@ -11,6 +11,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/rsa"
 	"crypto/x509"
+	"errors"
 	"net/http"
 	"net/url"
 
@@ -196,6 +197,10 @@ func DefaultAssertionHandler(_ Options) NopAssertionHandler {
 // replacing and/or changing Session, RequestTracker, and ServiceProvider
 // in the returned Middleware.
 func New(opts Options) (*Middleware, error) {
+	if opts.SignRequest && opts.Certificate == nil {
+		return nil, errors.New("the certificate is mandatory if SignRequest is enabled")
+	}
+
 	m := &Middleware{
 		ServiceProvider:  DefaultServiceProvider(opts),
 		Binding:          "",
