@@ -31,7 +31,7 @@ type (
 		IDPMetadata           *EntityDescriptor
 		Certificate           *x509.Certificate
 		Intermediates         []*x509.Certificate
-		AuthnNameIDFormat     string
+		AuthnNameIDFormat     NameIDFormat
 	}
 
 	spOptionFn func(*SPOptions)
@@ -157,7 +157,7 @@ func SPWithIntermediates(v []*x509.Certificate) SPOption {
 }
 
 // SPWithAuthnNameIDFormat allows to set required nameID format.
-func SPWithAuthnNameIDFormat(v string) SPOption {
+func SPWithAuthnNameIDFormat(v NameIDFormat) SPOption {
 	return spOptionFn(func(opts *SPOptions) {
 		opts.AuthnNameIDFormat = v
 	})

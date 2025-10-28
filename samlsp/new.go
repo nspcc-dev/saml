@@ -37,6 +37,7 @@ type Options struct {
 	CookieName            string
 	RelayStateFunc        func(w http.ResponseWriter, r *http.Request) string
 	LogoutBindings        []string
+	AuthnNameIDFormat     saml.NameIDFormat
 }
 
 func getDefaultSigningMethod(signer crypto.Signer) jwt.SigningMethod {
@@ -135,6 +136,7 @@ func DefaultServiceProvider(opts Options) saml.ServiceProvider {
 		saml.SPWithIDPMetadata(opts.IDPMetadata),
 		saml.SPWithCertificate(opts.Certificate),
 		saml.SPWithIntermediates(opts.Intermediates),
+		saml.SPWithAuthnNameIDFormat(opts.AuthnNameIDFormat),
 	)
 }
 
