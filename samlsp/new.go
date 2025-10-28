@@ -18,31 +18,59 @@ import (
 	"github.com/nspcc-dev/saml"
 )
 
-// Options represents the parameters for creating a new middleware.
-type Options struct {
-	EntityID                   string
-	URL                        url.URL
-	Key                        crypto.Signer
-	Certificate                *x509.Certificate
-	Intermediates              []*x509.Certificate
-	HTTPClient                 *http.Client
-	AllowIDPInitiated          bool
-	DefaultRedirectURI         string
-	IDPMetadata                *saml.EntityDescriptor
-	SignRequest                bool
-	UseArtifactResponse        bool
-	ForceAuthn                 bool // TODO(ross): this should be *bool
-	RequestedAuthnContext      *saml.RequestedAuthnContext
-	CookieSameSite             http.SameSite
-	CookieName                 string
-	RelayStateFunc             func(w http.ResponseWriter, r *http.Request) string
-	LogoutBindings             []string
-	AuthnNameIDFormat          saml.NameIDFormat
-	MetadataPath               string
-	AcsPath                    string
-	SloPath                    string
-	AttributeConsumingServices []saml.AttributeConsumingService
-}
+type (
+	// Options represents the parameters for creating a new middleware.
+	Options struct {
+		EntityID                   string
+		URL                        url.URL
+		Key                        crypto.Signer
+		Certificate                *x509.Certificate
+		Intermediates              []*x509.Certificate
+		HTTPClient                 *http.Client
+		AllowIDPInitiated          bool
+		DefaultRedirectURI         string
+		IDPMetadata                *saml.EntityDescriptor
+		SignRequest                bool
+		UseArtifactResponse        bool
+		ForceAuthn                 bool // TODO(ross): this should be *bool
+		RequestedAuthnContext      *saml.RequestedAuthnContext
+		LogoutBindings             []string
+		AuthnNameIDFormat          saml.NameIDFormat
+		MetadataPath               string
+		AcsPath                    string
+		SloPath                    string
+		AttributeConsumingServices []saml.AttributeConsumingService
+		SessionProviderOptions     SessionProviderOptions
+		SessionCodecOptions        SessionCodecOptions
+		RequestTrackerOptions      RequestTrackerOptions
+		TrackedRequestCodecOptions TrackedRequestCodecOptions
+	}
+
+	// SessionProviderOptions represents the parameters for creating a new SessionProvider.
+	SessionProviderOptions struct {
+		CookieName     string
+		URL            url.URL
+		CookieSameSite http.SameSite
+	}
+
+	// SessionCodecOptions represents the parameters for creating a new SessionProvider.
+	SessionCodecOptions struct {
+		URL url.URL
+		Key crypto.Signer
+	}
+
+	// RequestTrackerOptions represents the parameters for creating a new RequestTracker.
+	RequestTrackerOptions struct {
+		RelayStateFunc func(w http.ResponseWriter, r *http.Request) string
+		CookieSameSite http.SameSite
+	}
+
+	// TrackedRequestCodecOptions represents the parameters for creating a new TrackedRequestCodec.
+	TrackedRequestCodecOptions struct {
+		URL url.URL
+		Key crypto.Signer
+	}
+)
 
 func getDefaultSigningMethod(signer crypto.Signer) jwt.SigningMethod {
 	if signer != nil {
@@ -58,7 +86,7 @@ func getDefaultSigningMethod(signer crypto.Signer) jwt.SigningMethod {
 
 // DefaultSessionCodec returns the default SessionCodec for the provided options,
 // a JWTSessionCodec configured to issue signed tokens.
-func DefaultSessionCodec(opts Options) JWTSessionCodec {
+func DefaultSessionCodec(opts SessionCodecOptions) JWTSessionCodec {
 	return JWTSessionCodec{
 		SigningMethod: getDefaultSigningMethod(opts.Key),
 		Audience:      opts.URL.String(),
@@ -70,7 +98,7 @@ func DefaultSessionCodec(opts Options) JWTSessionCodec {
 
 // DefaultSessionProvider returns the default SessionProvider for the provided options,
 // a CookieSessionProvider configured to store sessions in a cookie.
-func DefaultSessionProvider(opts Options) CookieSessionProvider {
+func DefaultSessionProvider(opts SessionProviderOptions, codec JWTSessionCodec) CookieSessionProvider {
 	cookieName := opts.CookieName
 	if cookieName == "" {
 		cookieName = defaultSessionCookieName
@@ -82,13 +110,13 @@ func DefaultSessionProvider(opts Options) CookieSessionProvider {
 		HTTPOnly: true,
 		Secure:   opts.URL.Scheme == "https",
 		SameSite: opts.CookieSameSite,
-		Codec:    DefaultSessionCodec(opts),
+		Codec:    codec,
 	}
 }
 
 // DefaultTrackedRequestCodec returns a new TrackedRequestCodec for the provided
 // options, a JWTTrackedRequestCodec that uses a JWT to encode TrackedRequests.
-func DefaultTrackedRequestCodec(opts Options) JWTTrackedRequestCodec {
+func DefaultTrackedRequestCodec(opts TrackedRequestCodecOptions) JWTTrackedRequestCodec {
 	return JWTTrackedRequestCodec{
 		SigningMethod: getDefaultSigningMethod(opts.Key),
 		Audience:      opts.URL.String(),
@@ -100,11 +128,11 @@ func DefaultTrackedRequestCodec(opts Options) JWTTrackedRequestCodec {
 
 // DefaultRequestTracker returns a new RequestTracker for the provided options,
 // a CookieRequestTracker which uses cookies to track pending requests.
-func DefaultRequestTracker(opts Options, serviceProvider *saml.ServiceProvider) CookieRequestTracker {
+func DefaultRequestTracker(opts RequestTrackerOptions, codec JWTTrackedRequestCodec, serviceProvider *saml.ServiceProvider) CookieRequestTracker {
 	return CookieRequestTracker{
 		ServiceProvider: serviceProvider,
 		NamePrefix:      "saml_",
-		Codec:           DefaultTrackedRequestCodec(opts),
+		Codec:           codec,
 		MaxAge:          saml.MaxIssueDelay,
 		RelayStateFunc:  opts.RelayStateFunc,
 		SameSite:        opts.CookieSameSite,
@@ -173,10 +201,10 @@ func New(opts Options) (*Middleware, error) {
 		Binding:          "",
 		ResponseBinding:  saml.HTTPPostBinding,
 		OnError:          DefaultOnError,
-		Session:          DefaultSessionProvider(opts),
+		Session:          DefaultSessionProvider(opts.SessionProviderOptions, DefaultSessionCodec(opts.SessionCodecOptions)),
 		AssertionHandler: DefaultAssertionHandler(opts),
 	}
-	m.RequestTracker = DefaultRequestTracker(opts, &m.ServiceProvider)
+	m.RequestTracker = DefaultRequestTracker(opts.RequestTrackerOptions, DefaultTrackedRequestCodec(opts.TrackedRequestCodecOptions), &m.ServiceProvider)
 	if opts.UseArtifactResponse {
 		m.ResponseBinding = saml.HTTPArtifactBinding
 	}

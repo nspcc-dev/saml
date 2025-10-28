@@ -24,7 +24,9 @@ func TestNewCanAcceptCookieName(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.testName, func(t *testing.T) {
 			opts := Options{
-				CookieName: tc.cookieName,
+				SessionProviderOptions: SessionProviderOptions{
+					CookieName: tc.cookieName,
+				},
 			}
 			sp, err := New(opts)
 			assert.Assert(t, err)
