@@ -182,6 +182,50 @@ const DefaultValidDuration = time.Hour * 24 * 2
 // DefaultCacheDuration is how long we ask the IDP to cache the SP metadata.
 const DefaultCacheDuration = time.Hour * 24 * 1
 
+// NewServiceProvider is a ServiceProvider constructor.
+func NewServiceProvider(options ...SPOption) ServiceProvider {
+	var opts SPOptions
+	for _, o := range options {
+		o.Apply(&opts)
+	}
+
+	signatureMethod := defaultSigningMethodForKey(opts.Key)
+	if !opts.SignRequest {
+		signatureMethod = ""
+	}
+
+	return ServiceProvider{
+		EntityID:              opts.EntityID,
+		Key:                   opts.Key,
+		Certificate:           opts.Certificate,
+		HTTPClient:            opts.HTTPClient,
+		Intermediates:         opts.Intermediates,
+		MetadataURL:           opts.MetadataURL,
+		AcsURL:                opts.AcsURL,
+		SloURL:                opts.SloURL,
+		IDPMetadata:           opts.IDPMetadata,
+		ForceAuthn:            opts.ForceAuthn,
+		RequestedAuthnContext: opts.RequestedAuthnContext,
+		SignatureMethod:       signatureMethod,
+		AllowIDPInitiated:     opts.AllowIDPInitiated,
+		DefaultRedirectURI:    opts.DefaultRedirectURI,
+		LogoutBindings:        opts.LogoutBindings,
+	}
+}
+
+func defaultSigningMethodForKey(key crypto.Signer) string {
+	switch key.(type) {
+	case *rsa.PrivateKey:
+		return dsig.RSASHA1SignatureMethod
+	case *ecdsa.PrivateKey:
+		return dsig.ECDSASHA256SignatureMethod
+	case nil:
+		return ""
+	default:
+		panic(fmt.Sprintf("programming error: unsupported key type %T", key))
+	}
+}
+
 // Metadata returns the service provider metadata.
 func (sp *ServiceProvider) Metadata() *EntityDescriptor {
 	validDuration := DefaultValidDuration

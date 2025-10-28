@@ -11,13 +11,10 @@ import (
 	"crypto/ecdsa"
 	"crypto/rsa"
 	"crypto/x509"
-	"fmt"
 	"net/http"
 	"net/url"
 
 	"github.com/golang-jwt/jwt/v5"
-	dsig "github.com/russellhaering/goxmldsig"
-
 	"github.com/nspcc-dev/saml"
 )
 
@@ -112,20 +109,6 @@ func DefaultRequestTracker(opts Options, serviceProvider *saml.ServiceProvider) 
 // DefaultServiceProvider returns the default saml.ServiceProvider for the provided
 // options.
 func DefaultServiceProvider(opts Options) saml.ServiceProvider {
-	metadataURL := opts.URL.ResolveReference(&url.URL{Path: "saml/metadata"})
-	acsURL := opts.URL.ResolveReference(&url.URL{Path: "saml/acs"})
-	sloURL := opts.URL.ResolveReference(&url.URL{Path: "saml/slo"})
-
-	var forceAuthn *bool
-	if opts.ForceAuthn {
-		forceAuthn = &opts.ForceAuthn
-	}
-
-	signatureMethod := defaultSigningMethodForKey(opts.Key)
-	if !opts.SignRequest {
-		signatureMethod = ""
-	}
-
 	if opts.DefaultRedirectURI == "" {
 		opts.DefaultRedirectURI = "/"
 	}
@@ -134,36 +117,25 @@ func DefaultServiceProvider(opts Options) saml.ServiceProvider {
 		opts.LogoutBindings = []string{saml.HTTPPostBinding}
 	}
 
-	return saml.ServiceProvider{
-		EntityID:              opts.EntityID,
-		Key:                   opts.Key,
-		Certificate:           opts.Certificate,
-		HTTPClient:            opts.HTTPClient,
-		Intermediates:         opts.Intermediates,
-		MetadataURL:           *metadataURL,
-		AcsURL:                *acsURL,
-		SloURL:                *sloURL,
-		IDPMetadata:           opts.IDPMetadata,
-		ForceAuthn:            forceAuthn,
-		RequestedAuthnContext: opts.RequestedAuthnContext,
-		SignatureMethod:       signatureMethod,
-		AllowIDPInitiated:     opts.AllowIDPInitiated,
-		DefaultRedirectURI:    opts.DefaultRedirectURI,
-		LogoutBindings:        opts.LogoutBindings,
-	}
-}
-
-func defaultSigningMethodForKey(key crypto.Signer) string {
-	switch key.(type) {
-	case *rsa.PrivateKey:
-		return dsig.RSASHA1SignatureMethod
-	case *ecdsa.PrivateKey:
-		return dsig.ECDSASHA256SignatureMethod
-	case nil:
-		return ""
-	default:
-		panic(fmt.Sprintf("programming error: unsupported key type %T", key))
-	}
+	return saml.NewServiceProvider(
+		saml.SPWithEntityID(opts.EntityID),
+		saml.SPWithBaseURL(opts.URL),
+		saml.SPWithMetadataURL(*opts.URL.ResolveReference(&url.URL{Path: "saml/metadata"})),
+		saml.SPWithAcsURL(*opts.URL.ResolveReference(&url.URL{Path: "saml/acs"})),
+		saml.SPWithSloURL(*opts.URL.ResolveReference(&url.URL{Path: "saml/slo"})),
+		saml.SPWithForceAuthn(opts.ForceAuthn),
+		saml.SPWithKey(opts.Key),
+		saml.SPWithDefaultRedirectURI(opts.DefaultRedirectURI),
+		saml.SPWithLogoutBindings(opts.LogoutBindings),
+		saml.SPWithHTTPClient(opts.HTTPClient),
+		saml.SPWithSignRequest(opts.SignRequest),
+		saml.SPWithAllowIDPInitiated(opts.AllowIDPInitiated),
+		saml.SPWithDefaultRedirectURI(opts.DefaultRedirectURI),
+		saml.SPWithRequestedAuthnContext(opts.RequestedAuthnContext),
+		saml.SPWithIDPMetadata(opts.IDPMetadata),
+		saml.SPWithCertificate(opts.Certificate),
+		saml.SPWithIntermediates(opts.Intermediates),
+	)
 }
 
 // DefaultAssertionHandler returns the default AssertionHandler for the provided options,
