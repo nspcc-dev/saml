@@ -20,27 +20,28 @@ import (
 
 // Options represents the parameters for creating a new middleware.
 type Options struct {
-	EntityID              string
-	URL                   url.URL
-	Key                   crypto.Signer
-	Certificate           *x509.Certificate
-	Intermediates         []*x509.Certificate
-	HTTPClient            *http.Client
-	AllowIDPInitiated     bool
-	DefaultRedirectURI    string
-	IDPMetadata           *saml.EntityDescriptor
-	SignRequest           bool
-	UseArtifactResponse   bool
-	ForceAuthn            bool // TODO(ross): this should be *bool
-	RequestedAuthnContext *saml.RequestedAuthnContext
-	CookieSameSite        http.SameSite
-	CookieName            string
-	RelayStateFunc        func(w http.ResponseWriter, r *http.Request) string
-	LogoutBindings        []string
-	AuthnNameIDFormat     saml.NameIDFormat
-	MetadataPath          string
-	AcsPath               string
-	SloPath               string
+	EntityID                   string
+	URL                        url.URL
+	Key                        crypto.Signer
+	Certificate                *x509.Certificate
+	Intermediates              []*x509.Certificate
+	HTTPClient                 *http.Client
+	AllowIDPInitiated          bool
+	DefaultRedirectURI         string
+	IDPMetadata                *saml.EntityDescriptor
+	SignRequest                bool
+	UseArtifactResponse        bool
+	ForceAuthn                 bool // TODO(ross): this should be *bool
+	RequestedAuthnContext      *saml.RequestedAuthnContext
+	CookieSameSite             http.SameSite
+	CookieName                 string
+	RelayStateFunc             func(w http.ResponseWriter, r *http.Request) string
+	LogoutBindings             []string
+	AuthnNameIDFormat          saml.NameIDFormat
+	MetadataPath               string
+	AcsPath                    string
+	SloPath                    string
+	AttributeConsumingServices []saml.AttributeConsumingService
 }
 
 func getDefaultSigningMethod(signer crypto.Signer) jwt.SigningMethod {
@@ -150,6 +151,7 @@ func DefaultServiceProvider(opts Options) saml.ServiceProvider {
 		saml.SPWithCertificate(opts.Certificate),
 		saml.SPWithIntermediates(opts.Intermediates),
 		saml.SPWithAuthnNameIDFormat(opts.AuthnNameIDFormat),
+		saml.SPWithAttributeConsumingServices(opts.AttributeConsumingServices),
 	)
 }
 

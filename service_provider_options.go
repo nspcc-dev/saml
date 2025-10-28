@@ -5,6 +5,7 @@ import (
 	"crypto/x509"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 type (
@@ -15,23 +16,31 @@ type (
 
 	// SPOptions represents possible options for ServiceProvider constructor.
 	SPOptions struct {
-		EntityID              string
-		BaseURL               url.URL
-		MetadataURL           url.URL
-		AcsURL                url.URL
-		SloURL                url.URL
-		ForceAuthn            *bool
-		DefaultRedirectURI    string
-		LogoutBindings        []string
-		Key                   crypto.Signer
-		HTTPClient            *http.Client
-		SignRequest           bool
-		AllowIDPInitiated     bool
-		RequestedAuthnContext *RequestedAuthnContext
-		IDPMetadata           *EntityDescriptor
-		Certificate           *x509.Certificate
-		Intermediates         []*x509.Certificate
-		AuthnNameIDFormat     NameIDFormat
+		EntityID                           string
+		BaseURL                            url.URL
+		MetadataURL                        url.URL
+		AcsURL                             url.URL
+		SloURL                             url.URL
+		ForceAuthn                         *bool
+		DefaultRedirectURI                 string
+		LogoutBindings                     []string
+		Key                                crypto.Signer
+		HTTPClient                         *http.Client
+		SignRequest                        bool
+		AllowIDPInitiated                  bool
+		RequestedAuthnContext              *RequestedAuthnContext
+		IDPMetadata                        *EntityDescriptor
+		Certificate                        *x509.Certificate
+		Intermediates                      []*x509.Certificate
+		AuthnNameIDFormat                  NameIDFormat
+		IDPCertificateFingerprint          *string
+		IDPCertificateFingerprintAlgorithm *string
+		IDPCertificate                     *string
+		MetadataValidDuration              time.Duration
+		SignatureVerifier                  SignatureVerifier
+		ValidateAudienceRestriction        func(assertion *Assertion) error
+		ValidateRequestID                  func(response Response, possibleRequestIDs []string) error
+		AttributeConsumingServices         []AttributeConsumingService
 	}
 
 	spOptionFn func(*SPOptions)
@@ -160,5 +169,61 @@ func SPWithIntermediates(v []*x509.Certificate) SPOption {
 func SPWithAuthnNameIDFormat(v NameIDFormat) SPOption {
 	return spOptionFn(func(opts *SPOptions) {
 		opts.AuthnNameIDFormat = v
+	})
+}
+
+// SPWithIDPCertificateFingerprint allows to set IDP certificate fingerprint.
+func SPWithIDPCertificateFingerprint(v *string) SPOption {
+	return spOptionFn(func(opts *SPOptions) {
+		opts.IDPCertificateFingerprint = v
+	})
+}
+
+// SPWithIDPCertificateFingerprintAlgorithm allows to set IDP certificate fingerprint algorithm.
+func SPWithIDPCertificateFingerprintAlgorithm(v *string) SPOption {
+	return spOptionFn(func(opts *SPOptions) {
+		opts.IDPCertificateFingerprintAlgorithm = v
+	})
+}
+
+// SPWithIDPCertificate allows to set IDP certificate.
+func SPWithIDPCertificate(v *string) SPOption {
+	return spOptionFn(func(opts *SPOptions) {
+		opts.IDPCertificate = v
+	})
+}
+
+// SPWithMetadataValidDuration allows to set SP metadata livetime.
+func SPWithMetadataValidDuration(v time.Duration) SPOption {
+	return spOptionFn(func(opts *SPOptions) {
+		opts.MetadataValidDuration = v
+	})
+}
+
+// SPWithSignatureVerifier allows to set SignatureVerifier.
+func SPWithSignatureVerifier(v SignatureVerifier) SPOption {
+	return spOptionFn(func(opts *SPOptions) {
+		opts.SignatureVerifier = v
+	})
+}
+
+// SPWithValidateAudienceRestriction allows to set AudienceRestriction validator.
+func SPWithValidateAudienceRestriction(v func(assertion *Assertion) error) SPOption {
+	return spOptionFn(func(opts *SPOptions) {
+		opts.ValidateAudienceRestriction = v
+	})
+}
+
+// SPWithValidateRequestID allows to set request ID validator.
+func SPWithValidateRequestID(v func(response Response, possibleRequestIDs []string) error) SPOption {
+	return spOptionFn(func(opts *SPOptions) {
+		opts.ValidateRequestID = v
+	})
+}
+
+// SPWithAttributeConsumingServices allows to set SP required attributes.
+func SPWithAttributeConsumingServices(v []AttributeConsumingService) SPOption {
+	return spOptionFn(func(opts *SPOptions) {
+		opts.AttributeConsumingServices = v
 	})
 }

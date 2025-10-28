@@ -164,6 +164,9 @@ type ServiceProvider struct {
 	// ValidateRequestID allows you to override the default request ID validation.
 	// If nil, the default request ID validation is used.
 	ValidateRequestID func(response Response, possibleRequestIDs []string) error
+
+	// AttributeConsumingServices Allows requesting attributes from the IDP provider.
+	AttributeConsumingServices []AttributeConsumingService
 }
 
 // MaxIssueDelay is the longest allowed time between when a SAML assertion is
@@ -195,21 +198,30 @@ func NewServiceProvider(options ...SPOption) ServiceProvider {
 	}
 
 	return ServiceProvider{
-		EntityID:              opts.EntityID,
-		Key:                   opts.Key,
-		Certificate:           opts.Certificate,
-		HTTPClient:            opts.HTTPClient,
-		Intermediates:         opts.Intermediates,
-		MetadataURL:           opts.MetadataURL,
-		AcsURL:                opts.AcsURL,
-		SloURL:                opts.SloURL,
-		IDPMetadata:           opts.IDPMetadata,
-		ForceAuthn:            opts.ForceAuthn,
-		RequestedAuthnContext: opts.RequestedAuthnContext,
-		SignatureMethod:       signatureMethod,
-		AllowIDPInitiated:     opts.AllowIDPInitiated,
-		DefaultRedirectURI:    opts.DefaultRedirectURI,
-		LogoutBindings:        opts.LogoutBindings,
+		EntityID:                           opts.EntityID,
+		Key:                                opts.Key,
+		Certificate:                        opts.Certificate,
+		Intermediates:                      opts.Intermediates,
+		HTTPClient:                         opts.HTTPClient,
+		MetadataURL:                        opts.MetadataURL,
+		AcsURL:                             opts.AcsURL,
+		SloURL:                             opts.SloURL,
+		IDPMetadata:                        opts.IDPMetadata,
+		IDPCertificateFingerprint:          opts.IDPCertificateFingerprint,
+		IDPCertificateFingerprintAlgorithm: opts.IDPCertificateFingerprintAlgorithm,
+		IDPCertificate:                     opts.IDPCertificate,
+		AuthnNameIDFormat:                  opts.AuthnNameIDFormat,
+		MetadataValidDuration:              opts.MetadataValidDuration,
+		ForceAuthn:                         opts.ForceAuthn,
+		RequestedAuthnContext:              opts.RequestedAuthnContext,
+		AllowIDPInitiated:                  opts.AllowIDPInitiated,
+		DefaultRedirectURI:                 opts.DefaultRedirectURI,
+		SignatureVerifier:                  opts.SignatureVerifier,
+		SignatureMethod:                    signatureMethod,
+		LogoutBindings:                     opts.LogoutBindings,
+		ValidateAudienceRestriction:        opts.ValidateAudienceRestriction,
+		ValidateRequestID:                  opts.ValidateRequestID,
+		AttributeConsumingServices:         opts.AttributeConsumingServices,
 	}
 }
 
@@ -314,6 +326,7 @@ func (sp *ServiceProvider) Metadata() *EntityDescriptor {
 						Index:    2,
 					},
 				},
+				AttributeConsumingServices: sp.AttributeConsumingServices,
 			},
 		},
 	}
