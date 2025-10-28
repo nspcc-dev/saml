@@ -38,6 +38,9 @@ type Options struct {
 	RelayStateFunc        func(w http.ResponseWriter, r *http.Request) string
 	LogoutBindings        []string
 	AuthnNameIDFormat     saml.NameIDFormat
+	MetadataPath          string
+	AcsPath               string
+	SloPath               string
 }
 
 func getDefaultSigningMethod(signer crypto.Signer) jwt.SigningMethod {
@@ -118,12 +121,22 @@ func DefaultServiceProvider(opts Options) saml.ServiceProvider {
 		opts.LogoutBindings = []string{saml.HTTPPostBinding}
 	}
 
+	if opts.MetadataPath == "" {
+		opts.MetadataPath = "saml/metadata"
+	}
+	if opts.AcsPath == "" {
+		opts.AcsPath = "saml/acs"
+	}
+	if opts.SloPath == "" {
+		opts.SloPath = "saml/slo"
+	}
+
 	return saml.NewServiceProvider(
 		saml.SPWithEntityID(opts.EntityID),
 		saml.SPWithBaseURL(opts.URL),
-		saml.SPWithMetadataURL(*opts.URL.ResolveReference(&url.URL{Path: "saml/metadata"})),
-		saml.SPWithAcsURL(*opts.URL.ResolveReference(&url.URL{Path: "saml/acs"})),
-		saml.SPWithSloURL(*opts.URL.ResolveReference(&url.URL{Path: "saml/slo"})),
+		saml.SPWithMetadataURL(*opts.URL.ResolveReference(&url.URL{Path: opts.MetadataPath})),
+		saml.SPWithAcsURL(*opts.URL.ResolveReference(&url.URL{Path: opts.AcsPath})),
+		saml.SPWithSloURL(*opts.URL.ResolveReference(&url.URL{Path: opts.SloPath})),
 		saml.SPWithForceAuthn(opts.ForceAuthn),
 		saml.SPWithKey(opts.Key),
 		saml.SPWithDefaultRedirectURI(opts.DefaultRedirectURI),
