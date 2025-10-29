@@ -62,8 +62,9 @@ type (
 
 	// RequestTrackerOptions represents the parameters for creating a new RequestTracker.
 	RequestTrackerOptions struct {
-		RelayStateFunc func(w http.ResponseWriter, r *http.Request) string
-		CookieSameSite http.SameSite
+		RelayStateFunc      func(w http.ResponseWriter, r *http.Request) string
+		CookieSameSite      http.SameSite
+		RedirectURIOverride string
 	}
 
 	// TrackedRequestCodecOptions represents the parameters for creating a new TrackedRequestCodec.
@@ -131,12 +132,13 @@ func DefaultTrackedRequestCodec(opts TrackedRequestCodecOptions) JWTTrackedReque
 // a CookieRequestTracker which uses cookies to track pending requests.
 func DefaultRequestTracker(opts RequestTrackerOptions, codec JWTTrackedRequestCodec, serviceProvider *saml.ServiceProvider) CookieRequestTracker {
 	return CookieRequestTracker{
-		ServiceProvider: serviceProvider,
-		NamePrefix:      "saml_",
-		Codec:           codec,
-		MaxAge:          saml.MaxIssueDelay,
-		RelayStateFunc:  opts.RelayStateFunc,
-		SameSite:        opts.CookieSameSite,
+		ServiceProvider:     serviceProvider,
+		NamePrefix:          "saml_",
+		Codec:               codec,
+		MaxAge:              saml.MaxIssueDelay,
+		RelayStateFunc:      opts.RelayStateFunc,
+		SameSite:            opts.CookieSameSite,
+		RedirectURIOverride: opts.RedirectURIOverride,
 	}
 }
 
