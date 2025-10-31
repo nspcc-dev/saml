@@ -23,11 +23,12 @@ const (
 // JWTSessionCodec implements SessionCoded to encode and decode Sessions from
 // the corresponding JWT.
 type JWTSessionCodec struct {
-	SigningMethod jwt.SigningMethod
-	Audience      string
-	Issuer        string
-	MaxAge        time.Duration
-	Key           crypto.Signer
+	SigningMethod          jwt.SigningMethod
+	Audience               string
+	Issuer                 string
+	MaxAge                 time.Duration
+	Key                    crypto.Signer
+	VerificationPublicKeys PublicKeysGetter
 }
 
 var _ SessionCodec = JWTSessionCodec{}
@@ -101,7 +102,23 @@ func (c JWTSessionCodec) Decode(signed string) (Session, error) {
 	)
 	claims := JWTSessionClaims{}
 	_, err := parser.ParseWithClaims(signed, &claims, func(*jwt.Token) (any, error) {
-		return c.Key.Public(), nil
+		if c.VerificationPublicKeys == nil {
+			return c.Key.Public(), nil
+		}
+
+		var (
+			keys   = c.VerificationPublicKeys()
+			keySet = jwt.VerificationKeySet{
+				Keys: make([]jwt.VerificationKey, 0, len(keys)+1),
+			}
+		)
+
+		keySet.Keys = append(keySet.Keys, c.Key.Public())
+		for _, k := range keys {
+			keySet.Keys = append(keySet.Keys, k)
+		}
+
+		return keySet, nil
 	})
 	// TODO(ross): check for errors due to bad time and return ErrNoSession
 	if err != nil {

@@ -47,6 +47,9 @@ type (
 		TrackedRequestCodecOptions TrackedRequestCodecOptions
 	}
 
+	// PublicKeysGetter represents func to retrieve actual public keys list.
+	PublicKeysGetter func() []crypto.PublicKey
+
 	// SessionProviderOptions represents the parameters for creating a new SessionProvider.
 	SessionProviderOptions struct {
 		CookieName     string
@@ -56,8 +59,9 @@ type (
 
 	// SessionCodecOptions represents the parameters for creating a new SessionProvider.
 	SessionCodecOptions struct {
-		URL url.URL
-		Key crypto.Signer
+		URL                    url.URL
+		Key                    crypto.Signer
+		VerificationPublicKeys PublicKeysGetter
 	}
 
 	// RequestTrackerOptions represents the parameters for creating a new RequestTracker.
@@ -69,8 +73,9 @@ type (
 
 	// TrackedRequestCodecOptions represents the parameters for creating a new TrackedRequestCodec.
 	TrackedRequestCodecOptions struct {
-		URL url.URL
-		Key crypto.Signer
+		URL                    url.URL
+		Key                    crypto.Signer
+		VerificationPublicKeys PublicKeysGetter
 	}
 )
 
@@ -90,11 +95,12 @@ func getDefaultSigningMethod(signer crypto.Signer) jwt.SigningMethod {
 // a JWTSessionCodec configured to issue signed tokens.
 func DefaultSessionCodec(opts SessionCodecOptions) JWTSessionCodec {
 	return JWTSessionCodec{
-		SigningMethod: getDefaultSigningMethod(opts.Key),
-		Audience:      opts.URL.String(),
-		Issuer:        opts.URL.String(),
-		MaxAge:        defaultSessionMaxAge,
-		Key:           opts.Key,
+		SigningMethod:          getDefaultSigningMethod(opts.Key),
+		Audience:               opts.URL.String(),
+		Issuer:                 opts.URL.String(),
+		MaxAge:                 defaultSessionMaxAge,
+		Key:                    opts.Key,
+		VerificationPublicKeys: opts.VerificationPublicKeys,
 	}
 }
 
@@ -120,11 +126,12 @@ func DefaultSessionProvider(opts SessionProviderOptions, codec JWTSessionCodec) 
 // options, a JWTTrackedRequestCodec that uses a JWT to encode TrackedRequests.
 func DefaultTrackedRequestCodec(opts TrackedRequestCodecOptions) JWTTrackedRequestCodec {
 	return JWTTrackedRequestCodec{
-		SigningMethod: getDefaultSigningMethod(opts.Key),
-		Audience:      opts.URL.String(),
-		Issuer:        opts.URL.String(),
-		MaxAge:        saml.MaxIssueDelay,
-		Key:           opts.Key,
+		SigningMethod:          getDefaultSigningMethod(opts.Key),
+		Audience:               opts.URL.String(),
+		Issuer:                 opts.URL.String(),
+		MaxAge:                 saml.MaxIssueDelay,
+		Key:                    opts.Key,
+		VerificationPublicKeys: opts.VerificationPublicKeys,
 	}
 }
 
