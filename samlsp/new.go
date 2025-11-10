@@ -172,7 +172,6 @@ func DefaultServiceProvider(opts Options) saml.ServiceProvider {
 
 	return saml.NewServiceProvider(
 		saml.SPWithEntityID(opts.EntityID),
-		saml.SPWithBaseURL(opts.URL),
 		saml.SPWithMetadataURL(*opts.URL.ResolveReference(&url.URL{Path: opts.MetadataPath})),
 		saml.SPWithAcsURL(*opts.URL.ResolveReference(&url.URL{Path: opts.AcsPath})),
 		saml.SPWithSloURL(*opts.URL.ResolveReference(&url.URL{Path: opts.SloPath})),

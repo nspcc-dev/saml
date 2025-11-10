@@ -17,7 +17,6 @@ type (
 	// SPOptions represents possible options for ServiceProvider constructor.
 	SPOptions struct {
 		EntityID                           string
-		BaseURL                            url.URL
 		MetadataURL                        url.URL
 		AcsURL                             url.URL
 		SloURL                             url.URL
@@ -61,13 +60,6 @@ func SPWithEntityID(entityID string) SPOption {
 func SPWithDefaultRedirectURI(uri string) SPOption {
 	return spOptionFn(func(opts *SPOptions) {
 		opts.DefaultRedirectURI = uri
-	})
-}
-
-// SPWithBaseURL allows to set base URL.
-func SPWithBaseURL(u url.URL) SPOption {
-	return spOptionFn(func(opts *SPOptions) {
-		opts.BaseURL = u
 	})
 }
 
