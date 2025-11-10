@@ -88,7 +88,7 @@ func main() {
 
 	samlSP, _ := samlsp.New(samlsp.Options{
 		URL:            *rootURL,
-		Key:            keyPair.PrivateKey.(*rsa.PrivateKey),
+		Key:            keyPair.PrivateKey.(*rsa.PrivateKey), // Key is not required if SignRequest=false.
 		Certificate:    keyPair.Leaf,
 		IDPMetadata:    idpMetadata,
 		SessionCodecOptions: samlsp.SessionCodecOptions{

@@ -187,14 +187,16 @@ const DefaultCacheDuration = time.Hour * 24 * 1
 
 // NewServiceProvider is a ServiceProvider constructor.
 func NewServiceProvider(options ...SPOption) ServiceProvider {
-	var opts SPOptions
+	var (
+		opts            SPOptions
+		signatureMethod string
+	)
 	for _, o := range options {
 		o.Apply(&opts)
 	}
 
-	signatureMethod := defaultSigningMethodForKey(opts.Key)
-	if !opts.SignRequest {
-		signatureMethod = ""
+	if opts.SignRequest {
+		signatureMethod = defaultSigningMethodForKey(opts.Key)
 	}
 
 	return ServiceProvider{
