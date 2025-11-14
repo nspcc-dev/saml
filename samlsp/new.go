@@ -45,6 +45,7 @@ type (
 		SessionCodecOptions        SessionCodecOptions
 		RequestTrackerOptions      RequestTrackerOptions
 		TrackedRequestCodecOptions TrackedRequestCodecOptions
+		ErrorFunc                  ErrorFunction
 	}
 
 	// PublicKeysGetter represents func to retrieve actual public keys list.
@@ -209,11 +210,16 @@ func New(opts Options) (*Middleware, error) {
 		return nil, errors.New("the certificate is mandatory if SignRequest is enabled")
 	}
 
+	var errFunc = DefaultOnError
+	if opts.ErrorFunc != nil {
+		errFunc = opts.ErrorFunc
+	}
+
 	m := &Middleware{
 		ServiceProvider:  DefaultServiceProvider(opts),
 		Binding:          "",
 		ResponseBinding:  saml.HTTPPostBinding,
-		OnError:          DefaultOnError,
+		OnError:          errFunc,
 		Session:          DefaultSessionProvider(opts.SessionProviderOptions, DefaultSessionCodec(opts.SessionCodecOptions)),
 		AssertionHandler: DefaultAssertionHandler(opts),
 	}
