@@ -17,11 +17,12 @@ import (
 
 // JWTTrackedRequestCodec encodes TrackedRequests as signed JWTs.
 type JWTTrackedRequestCodec struct {
-	SigningMethod jwt.SigningMethod
-	Audience      string
-	Issuer        string
-	MaxAge        time.Duration
-	Key           crypto.Signer
+	SigningMethod          jwt.SigningMethod
+	Audience               string
+	Issuer                 string
+	MaxAge                 time.Duration
+	Key                    crypto.Signer
+	VerificationPublicKeys PublicKeysGetter
 }
 
 var _ TrackedRequestCodec = JWTTrackedRequestCodec{}
@@ -62,7 +63,23 @@ func (s JWTTrackedRequestCodec) Decode(signed string) (*TrackedRequest, error) {
 	)
 	claims := JWTTrackedRequestClaims{}
 	_, err := parser.ParseWithClaims(signed, &claims, func(*jwt.Token) (any, error) {
-		return s.Key.Public(), nil
+		if s.VerificationPublicKeys == nil {
+			return s.Key.Public(), nil
+		}
+
+		var (
+			keys   = s.VerificationPublicKeys()
+			keySet = jwt.VerificationKeySet{
+				Keys: make([]jwt.VerificationKey, 0, len(keys)+1),
+			}
+		)
+
+		keySet.Keys = append(keySet.Keys, s.Key.Public())
+		for _, k := range keys {
+			keySet.Keys = append(keySet.Keys, k)
+		}
+
+		return keySet, nil
 	})
 	if err != nil {
 		return nil, err

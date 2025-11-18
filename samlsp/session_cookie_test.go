@@ -22,7 +22,7 @@ func TestCookieSameSite(t *testing.T) {
 	csp := CookieSessionProvider{
 		Name:   "token",
 		Domain: "localhost",
-		Codec: DefaultSessionCodec(Options{
+		Codec: DefaultSessionCodec(SessionCodecOptions{
 			Key: NewMiddlewareTest(t).Key,
 		}),
 	}

@@ -73,6 +73,17 @@ func main() {
 		Certificate: keyPair.Leaf,
 		IDPMetadata: idpMetadata,
 		SignRequest: true, // some IdP require the SLO request to be signed
+		SessionCodecOptions: samlsp.SessionCodecOptions{
+			URL: *rootURL,
+			Key: keyPair.PrivateKey.(*rsa.PrivateKey),
+		},
+		SessionProviderOptions: samlsp.SessionProviderOptions{
+			URL: *rootURL,
+		},
+		TrackedRequestCodecOptions: samlsp.TrackedRequestCodecOptions{
+			URL: *rootURL,
+			Key: keyPair.PrivateKey.(*rsa.PrivateKey),
+		},
 	})
 	app := http.HandlerFunc(hello)
 	slo := http.HandlerFunc(logout)

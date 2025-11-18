@@ -73,11 +73,24 @@ func NewMiddlewareTest(t *testing.T) *MiddlewareTest {
 		panic(err)
 	}
 
+	u := mustParseURL("https://15661444.ngrok.io/")
+
 	opts := Options{
-		URL:         mustParseURL("https://15661444.ngrok.io/"),
+		URL:         u,
 		Key:         test.Key,
 		Certificate: test.Certificate,
 		IDPMetadata: &metadata,
+		SessionCodecOptions: SessionCodecOptions{
+			URL: u,
+			Key: test.Key,
+		},
+		SessionProviderOptions: SessionProviderOptions{
+			URL: u,
+		},
+		TrackedRequestCodecOptions: TrackedRequestCodecOptions{
+			URL: u,
+			Key: test.Key,
+		},
 	}
 
 	var err error
@@ -86,7 +99,8 @@ func NewMiddlewareTest(t *testing.T) *MiddlewareTest {
 		panic(err)
 	}
 
-	sessionProvider := DefaultSessionProvider(opts)
+	sessionProvider := DefaultSessionProvider(SessionProviderOptions{URL: opts.URL}, DefaultSessionCodec(SessionCodecOptions{URL: opts.URL, Key: test.Key}))
+
 	sessionProvider.Name = "ttt"
 	sessionProvider.MaxAge = 7200 * time.Second
 
@@ -422,11 +436,9 @@ func TestMiddlewareCanParseResponse(t *testing.T) {
 func TestMiddlewareDefaultCookieDomainIPv4(t *testing.T) {
 	test := NewMiddlewareTest(t)
 	ipv4Loopback := net.IP{127, 0, 0, 1}
+	u := mustParseURL("https://" + net.JoinHostPort(ipv4Loopback.String(), "54321"))
 
-	sp := DefaultSessionProvider(Options{
-		URL: mustParseURL("https://" + net.JoinHostPort(ipv4Loopback.String(), "54321")),
-		Key: test.Key,
-	})
+	sp := DefaultSessionProvider(SessionProviderOptions{URL: u}, DefaultSessionCodec(SessionCodecOptions{URL: u, Key: test.Key}))
 
 	req, _ := http.NewRequest("GET", "/", nil)
 	resp := httptest.NewRecorder()
@@ -441,11 +453,9 @@ func TestMiddlewareDefaultCookieDomainIPv6(t *testing.T) {
 	t.Skip("fails") // TODO(ross): fix this test
 
 	test := NewMiddlewareTest(t)
+	u := mustParseURL("https://" + net.JoinHostPort(net.IPv6loopback.String(), "54321"))
 
-	sp := DefaultSessionProvider(Options{
-		URL: mustParseURL("https://" + net.JoinHostPort(net.IPv6loopback.String(), "54321")),
-		Key: test.Key,
-	})
+	sp := DefaultSessionProvider(SessionProviderOptions{URL: u}, DefaultSessionCodec(SessionCodecOptions{URL: u, Key: test.Key}))
 
 	req, _ := http.NewRequest("GET", "/", nil)
 	resp := httptest.NewRecorder()

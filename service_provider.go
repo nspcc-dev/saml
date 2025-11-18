@@ -164,6 +164,9 @@ type ServiceProvider struct {
 	// ValidateRequestID allows you to override the default request ID validation.
 	// If nil, the default request ID validation is used.
 	ValidateRequestID func(response Response, possibleRequestIDs []string) error
+
+	// AttributeConsumingServices Allows requesting attributes from the IDP provider.
+	AttributeConsumingServices []AttributeConsumingService
 }
 
 // MaxIssueDelay is the longest allowed time between when a SAML assertion is
@@ -181,6 +184,61 @@ const DefaultValidDuration = time.Hour * 24 * 2
 
 // DefaultCacheDuration is how long we ask the IDP to cache the SP metadata.
 const DefaultCacheDuration = time.Hour * 24 * 1
+
+// NewServiceProvider is a ServiceProvider constructor.
+func NewServiceProvider(options ...SPOption) ServiceProvider {
+	var (
+		opts            SPOptions
+		signatureMethod string
+	)
+	for _, o := range options {
+		o.Apply(&opts)
+	}
+
+	if opts.SignRequest {
+		signatureMethod = defaultSigningMethodForKey(opts.Key)
+	}
+
+	return ServiceProvider{
+		EntityID:                           opts.EntityID,
+		Key:                                opts.Key,
+		Certificate:                        opts.Certificate,
+		Intermediates:                      opts.Intermediates,
+		HTTPClient:                         opts.HTTPClient,
+		MetadataURL:                        opts.MetadataURL,
+		AcsURL:                             opts.AcsURL,
+		SloURL:                             opts.SloURL,
+		IDPMetadata:                        opts.IDPMetadata,
+		IDPCertificateFingerprint:          opts.IDPCertificateFingerprint,
+		IDPCertificateFingerprintAlgorithm: opts.IDPCertificateFingerprintAlgorithm,
+		IDPCertificate:                     opts.IDPCertificate,
+		AuthnNameIDFormat:                  opts.AuthnNameIDFormat,
+		MetadataValidDuration:              opts.MetadataValidDuration,
+		ForceAuthn:                         opts.ForceAuthn,
+		RequestedAuthnContext:              opts.RequestedAuthnContext,
+		AllowIDPInitiated:                  opts.AllowIDPInitiated,
+		DefaultRedirectURI:                 opts.DefaultRedirectURI,
+		SignatureVerifier:                  opts.SignatureVerifier,
+		SignatureMethod:                    signatureMethod,
+		LogoutBindings:                     opts.LogoutBindings,
+		ValidateAudienceRestriction:        opts.ValidateAudienceRestriction,
+		ValidateRequestID:                  opts.ValidateRequestID,
+		AttributeConsumingServices:         opts.AttributeConsumingServices,
+	}
+}
+
+func defaultSigningMethodForKey(key crypto.Signer) string {
+	switch key.(type) {
+	case *rsa.PrivateKey:
+		return dsig.RSASHA1SignatureMethod
+	case *ecdsa.PrivateKey:
+		return dsig.ECDSASHA256SignatureMethod
+	case nil:
+		return ""
+	default:
+		panic(fmt.Sprintf("programming error: unsupported key type %T", key))
+	}
+}
 
 // Metadata returns the service provider metadata.
 func (sp *ServiceProvider) Metadata() *EntityDescriptor {
@@ -270,6 +328,7 @@ func (sp *ServiceProvider) Metadata() *EntityDescriptor {
 						Index:    2,
 					},
 				},
+				AttributeConsumingServices: sp.AttributeConsumingServices,
 			},
 		},
 	}

@@ -88,9 +88,20 @@ func main() {
 
 	samlSP, _ := samlsp.New(samlsp.Options{
 		URL:            *rootURL,
-		Key:            keyPair.PrivateKey.(*rsa.PrivateKey),
+		Key:            keyPair.PrivateKey.(*rsa.PrivateKey), // Key is not required if SignRequest=false.
 		Certificate:    keyPair.Leaf,
-		IDPMetadata: idpMetadata,
+		IDPMetadata:    idpMetadata,
+		SessionCodecOptions: samlsp.SessionCodecOptions{
+			URL: *rootURL,
+			Key: keyPair.PrivateKey.(*rsa.PrivateKey), // It can be different with samlsp.Options.Key option.
+		},
+		SessionProviderOptions: samlsp.SessionProviderOptions{
+			URL: *rootURL,
+		},
+		TrackedRequestCodecOptions: samlsp.TrackedRequestCodecOptions{
+			URL: *rootURL,
+			Key: keyPair.PrivateKey.(*rsa.PrivateKey), // It can be different with samlsp.Options.Key option.
+		},
 	})
 	app := http.HandlerFunc(hello)
 	http.Handle("/hello", samlSP.RequireAccount(app))

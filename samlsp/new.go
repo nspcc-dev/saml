@@ -11,36 +11,74 @@ import (
 	"crypto/ecdsa"
 	"crypto/rsa"
 	"crypto/x509"
-	"fmt"
+	"errors"
 	"net/http"
 	"net/url"
 
 	"github.com/golang-jwt/jwt/v5"
-	dsig "github.com/russellhaering/goxmldsig"
-
 	"github.com/nspcc-dev/saml"
 )
 
-// Options represents the parameters for creating a new middleware.
-type Options struct {
-	EntityID              string
-	URL                   url.URL
-	Key                   crypto.Signer
-	Certificate           *x509.Certificate
-	Intermediates         []*x509.Certificate
-	HTTPClient            *http.Client
-	AllowIDPInitiated     bool
-	DefaultRedirectURI    string
-	IDPMetadata           *saml.EntityDescriptor
-	SignRequest           bool
-	UseArtifactResponse   bool
-	ForceAuthn            bool // TODO(ross): this should be *bool
-	RequestedAuthnContext *saml.RequestedAuthnContext
-	CookieSameSite        http.SameSite
-	CookieName            string
-	RelayStateFunc        func(w http.ResponseWriter, r *http.Request) string
-	LogoutBindings        []string
-}
+type (
+	// Options represents the parameters for creating a new middleware.
+	Options struct {
+		EntityID                   string
+		URL                        url.URL
+		Key                        crypto.Signer
+		Certificate                *x509.Certificate
+		Intermediates              []*x509.Certificate
+		HTTPClient                 *http.Client
+		AllowIDPInitiated          bool
+		DefaultRedirectURI         string
+		IDPMetadata                *saml.EntityDescriptor
+		SignRequest                bool
+		UseArtifactResponse        bool
+		ForceAuthn                 bool // TODO(ross): this should be *bool
+		RequestedAuthnContext      *saml.RequestedAuthnContext
+		LogoutBindings             []string
+		AuthnNameIDFormat          saml.NameIDFormat
+		MetadataPath               string
+		AcsPath                    string
+		SloPath                    string
+		AttributeConsumingServices []saml.AttributeConsumingService
+		SessionProviderOptions     SessionProviderOptions
+		SessionCodecOptions        SessionCodecOptions
+		RequestTrackerOptions      RequestTrackerOptions
+		TrackedRequestCodecOptions TrackedRequestCodecOptions
+		ErrorFunc                  ErrorFunction
+	}
+
+	// PublicKeysGetter represents func to retrieve actual public keys list.
+	PublicKeysGetter func() []crypto.PublicKey
+
+	// SessionProviderOptions represents the parameters for creating a new SessionProvider.
+	SessionProviderOptions struct {
+		CookieName     string
+		URL            url.URL
+		CookieSameSite http.SameSite
+	}
+
+	// SessionCodecOptions represents the parameters for creating a new SessionProvider.
+	SessionCodecOptions struct {
+		URL                    url.URL
+		Key                    crypto.Signer
+		VerificationPublicKeys PublicKeysGetter
+	}
+
+	// RequestTrackerOptions represents the parameters for creating a new RequestTracker.
+	RequestTrackerOptions struct {
+		RelayStateFunc      func(w http.ResponseWriter, r *http.Request) string
+		CookieSameSite      http.SameSite
+		RedirectURIOverride string
+	}
+
+	// TrackedRequestCodecOptions represents the parameters for creating a new TrackedRequestCodec.
+	TrackedRequestCodecOptions struct {
+		URL                    url.URL
+		Key                    crypto.Signer
+		VerificationPublicKeys PublicKeysGetter
+	}
+)
 
 func getDefaultSigningMethod(signer crypto.Signer) jwt.SigningMethod {
 	if signer != nil {
@@ -56,19 +94,20 @@ func getDefaultSigningMethod(signer crypto.Signer) jwt.SigningMethod {
 
 // DefaultSessionCodec returns the default SessionCodec for the provided options,
 // a JWTSessionCodec configured to issue signed tokens.
-func DefaultSessionCodec(opts Options) JWTSessionCodec {
+func DefaultSessionCodec(opts SessionCodecOptions) JWTSessionCodec {
 	return JWTSessionCodec{
-		SigningMethod: getDefaultSigningMethod(opts.Key),
-		Audience:      opts.URL.String(),
-		Issuer:        opts.URL.String(),
-		MaxAge:        defaultSessionMaxAge,
-		Key:           opts.Key,
+		SigningMethod:          getDefaultSigningMethod(opts.Key),
+		Audience:               opts.URL.String(),
+		Issuer:                 opts.URL.String(),
+		MaxAge:                 defaultSessionMaxAge,
+		Key:                    opts.Key,
+		VerificationPublicKeys: opts.VerificationPublicKeys,
 	}
 }
 
 // DefaultSessionProvider returns the default SessionProvider for the provided options,
 // a CookieSessionProvider configured to store sessions in a cookie.
-func DefaultSessionProvider(opts Options) CookieSessionProvider {
+func DefaultSessionProvider(opts SessionProviderOptions, codec JWTSessionCodec) CookieSessionProvider {
 	cookieName := opts.CookieName
 	if cookieName == "" {
 		cookieName = defaultSessionCookieName
@@ -80,52 +119,40 @@ func DefaultSessionProvider(opts Options) CookieSessionProvider {
 		HTTPOnly: true,
 		Secure:   opts.URL.Scheme == "https",
 		SameSite: opts.CookieSameSite,
-		Codec:    DefaultSessionCodec(opts),
+		Codec:    codec,
 	}
 }
 
 // DefaultTrackedRequestCodec returns a new TrackedRequestCodec for the provided
 // options, a JWTTrackedRequestCodec that uses a JWT to encode TrackedRequests.
-func DefaultTrackedRequestCodec(opts Options) JWTTrackedRequestCodec {
+func DefaultTrackedRequestCodec(opts TrackedRequestCodecOptions) JWTTrackedRequestCodec {
 	return JWTTrackedRequestCodec{
-		SigningMethod: getDefaultSigningMethod(opts.Key),
-		Audience:      opts.URL.String(),
-		Issuer:        opts.URL.String(),
-		MaxAge:        saml.MaxIssueDelay,
-		Key:           opts.Key,
+		SigningMethod:          getDefaultSigningMethod(opts.Key),
+		Audience:               opts.URL.String(),
+		Issuer:                 opts.URL.String(),
+		MaxAge:                 saml.MaxIssueDelay,
+		Key:                    opts.Key,
+		VerificationPublicKeys: opts.VerificationPublicKeys,
 	}
 }
 
 // DefaultRequestTracker returns a new RequestTracker for the provided options,
 // a CookieRequestTracker which uses cookies to track pending requests.
-func DefaultRequestTracker(opts Options, serviceProvider *saml.ServiceProvider) CookieRequestTracker {
+func DefaultRequestTracker(opts RequestTrackerOptions, codec JWTTrackedRequestCodec, serviceProvider *saml.ServiceProvider) CookieRequestTracker {
 	return CookieRequestTracker{
-		ServiceProvider: serviceProvider,
-		NamePrefix:      "saml_",
-		Codec:           DefaultTrackedRequestCodec(opts),
-		MaxAge:          saml.MaxIssueDelay,
-		RelayStateFunc:  opts.RelayStateFunc,
-		SameSite:        opts.CookieSameSite,
+		ServiceProvider:     serviceProvider,
+		NamePrefix:          "saml_",
+		Codec:               codec,
+		MaxAge:              saml.MaxIssueDelay,
+		RelayStateFunc:      opts.RelayStateFunc,
+		SameSite:            opts.CookieSameSite,
+		RedirectURIOverride: opts.RedirectURIOverride,
 	}
 }
 
 // DefaultServiceProvider returns the default saml.ServiceProvider for the provided
 // options.
 func DefaultServiceProvider(opts Options) saml.ServiceProvider {
-	metadataURL := opts.URL.ResolveReference(&url.URL{Path: "saml/metadata"})
-	acsURL := opts.URL.ResolveReference(&url.URL{Path: "saml/acs"})
-	sloURL := opts.URL.ResolveReference(&url.URL{Path: "saml/slo"})
-
-	var forceAuthn *bool
-	if opts.ForceAuthn {
-		forceAuthn = &opts.ForceAuthn
-	}
-
-	signatureMethod := defaultSigningMethodForKey(opts.Key)
-	if !opts.SignRequest {
-		signatureMethod = ""
-	}
-
 	if opts.DefaultRedirectURI == "" {
 		opts.DefaultRedirectURI = "/"
 	}
@@ -134,36 +161,36 @@ func DefaultServiceProvider(opts Options) saml.ServiceProvider {
 		opts.LogoutBindings = []string{saml.HTTPPostBinding}
 	}
 
-	return saml.ServiceProvider{
-		EntityID:              opts.EntityID,
-		Key:                   opts.Key,
-		Certificate:           opts.Certificate,
-		HTTPClient:            opts.HTTPClient,
-		Intermediates:         opts.Intermediates,
-		MetadataURL:           *metadataURL,
-		AcsURL:                *acsURL,
-		SloURL:                *sloURL,
-		IDPMetadata:           opts.IDPMetadata,
-		ForceAuthn:            forceAuthn,
-		RequestedAuthnContext: opts.RequestedAuthnContext,
-		SignatureMethod:       signatureMethod,
-		AllowIDPInitiated:     opts.AllowIDPInitiated,
-		DefaultRedirectURI:    opts.DefaultRedirectURI,
-		LogoutBindings:        opts.LogoutBindings,
+	if opts.MetadataPath == "" {
+		opts.MetadataPath = "saml/metadata"
 	}
-}
+	if opts.AcsPath == "" {
+		opts.AcsPath = "saml/acs"
+	}
+	if opts.SloPath == "" {
+		opts.SloPath = "saml/slo"
+	}
 
-func defaultSigningMethodForKey(key crypto.Signer) string {
-	switch key.(type) {
-	case *rsa.PrivateKey:
-		return dsig.RSASHA1SignatureMethod
-	case *ecdsa.PrivateKey:
-		return dsig.ECDSASHA256SignatureMethod
-	case nil:
-		return ""
-	default:
-		panic(fmt.Sprintf("programming error: unsupported key type %T", key))
-	}
+	return saml.NewServiceProvider(
+		saml.SPWithEntityID(opts.EntityID),
+		saml.SPWithMetadataURL(*opts.URL.ResolveReference(&url.URL{Path: opts.MetadataPath})),
+		saml.SPWithAcsURL(*opts.URL.ResolveReference(&url.URL{Path: opts.AcsPath})),
+		saml.SPWithSloURL(*opts.URL.ResolveReference(&url.URL{Path: opts.SloPath})),
+		saml.SPWithForceAuthn(opts.ForceAuthn),
+		saml.SPWithKey(opts.Key),
+		saml.SPWithDefaultRedirectURI(opts.DefaultRedirectURI),
+		saml.SPWithLogoutBindings(opts.LogoutBindings),
+		saml.SPWithHTTPClient(opts.HTTPClient),
+		saml.SPWithSignRequest(opts.SignRequest),
+		saml.SPWithAllowIDPInitiated(opts.AllowIDPInitiated),
+		saml.SPWithDefaultRedirectURI(opts.DefaultRedirectURI),
+		saml.SPWithRequestedAuthnContext(opts.RequestedAuthnContext),
+		saml.SPWithIDPMetadata(opts.IDPMetadata),
+		saml.SPWithCertificate(opts.Certificate),
+		saml.SPWithIntermediates(opts.Intermediates),
+		saml.SPWithAuthnNameIDFormat(opts.AuthnNameIDFormat),
+		saml.SPWithAttributeConsumingServices(opts.AttributeConsumingServices),
+	)
 }
 
 // DefaultAssertionHandler returns the default AssertionHandler for the provided options,
@@ -179,15 +206,24 @@ func DefaultAssertionHandler(_ Options) NopAssertionHandler {
 // replacing and/or changing Session, RequestTracker, and ServiceProvider
 // in the returned Middleware.
 func New(opts Options) (*Middleware, error) {
+	if opts.SignRequest && opts.Certificate == nil {
+		return nil, errors.New("the certificate is mandatory if SignRequest is enabled")
+	}
+
+	var errFunc = DefaultOnError
+	if opts.ErrorFunc != nil {
+		errFunc = opts.ErrorFunc
+	}
+
 	m := &Middleware{
 		ServiceProvider:  DefaultServiceProvider(opts),
 		Binding:          "",
 		ResponseBinding:  saml.HTTPPostBinding,
-		OnError:          DefaultOnError,
-		Session:          DefaultSessionProvider(opts),
+		OnError:          errFunc,
+		Session:          DefaultSessionProvider(opts.SessionProviderOptions, DefaultSessionCodec(opts.SessionCodecOptions)),
 		AssertionHandler: DefaultAssertionHandler(opts),
 	}
-	m.RequestTracker = DefaultRequestTracker(opts, &m.ServiceProvider)
+	m.RequestTracker = DefaultRequestTracker(opts.RequestTrackerOptions, DefaultTrackedRequestCodec(opts.TrackedRequestCodecOptions), &m.ServiceProvider)
 	if opts.UseArtifactResponse {
 		m.ResponseBinding = saml.HTTPArtifactBinding
 	}

@@ -162,6 +162,10 @@ func main() {
 		Certificate:       keyPair.Leaf,
 		AllowIDPInitiated: true,
 		IDPMetadata:       idpMetadata,
+		SessionCodecOptions: samlsp.SessionCodecOptions{
+			URL: *rootURL,
+			Key: keyPair.PrivateKey.(*rsa.PrivateKey),
+		},
 	})
 	if err != nil {
 		panic(err) // TODO handle error

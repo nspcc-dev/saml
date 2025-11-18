@@ -20,12 +20,13 @@ var _ RequestTracker = CookieRequestTracker{}
 // CookieRequestTracker tracks requests by setting a uniquely named
 // cookie for each request.
 type CookieRequestTracker struct {
-	ServiceProvider *saml.ServiceProvider
-	NamePrefix      string
-	Codec           TrackedRequestCodec
-	MaxAge          time.Duration
-	RelayStateFunc  func(w http.ResponseWriter, r *http.Request) string
-	SameSite        http.SameSite
+	ServiceProvider     *saml.ServiceProvider
+	NamePrefix          string
+	Codec               TrackedRequestCodec
+	MaxAge              time.Duration
+	RelayStateFunc      func(w http.ResponseWriter, r *http.Request) string
+	SameSite            http.SameSite
+	RedirectURIOverride string
 }
 
 // TrackRequest starts tracking the SAML request with the given ID. It returns an
@@ -35,6 +36,10 @@ func (t CookieRequestTracker) TrackRequest(w http.ResponseWriter, r *http.Reques
 		Index:         base64.RawURLEncoding.EncodeToString(randomBytes(42)),
 		SAMLRequestID: samlRequestID,
 		URI:           r.URL.String(),
+	}
+
+	if t.RedirectURIOverride != "" {
+		trackedRequest.URI = t.RedirectURIOverride
 	}
 
 	if t.RelayStateFunc != nil {
