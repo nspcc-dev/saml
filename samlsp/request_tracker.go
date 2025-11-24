@@ -19,9 +19,9 @@ import (
 //  2. After the authentication completes, we want to ensure that the user presenting the
 //     assertion is actually the one the request it, to mitigate request forgeries.
 type RequestTracker interface {
-	// TrackRequest starts tracking the SAML request with the given ID. It returns an
+	// TrackRequest starts tracking the SAML request with the given ID and extra data. It returns an
 	// `index` that should be used as the RelayState in the SAMl request flow.
-	TrackRequest(w http.ResponseWriter, r *http.Request, samlRequestID string) (index string, err error)
+	TrackRequest(w http.ResponseWriter, r *http.Request, samlRequestID string, extra map[string]string) (index string, err error)
 
 	// StopTrackingRequest stops tracking the SAML request given by index, which is a string
 	// previously returned from TrackRequest
@@ -36,9 +36,10 @@ type RequestTracker interface {
 
 // TrackedRequest holds the data we store for each pending request.
 type TrackedRequest struct {
-	Index         string `json:"-"`
-	SAMLRequestID string `json:"id"`
-	URI           string `json:"uri"`
+	Index         string            `json:"-"`
+	SAMLRequestID string            `json:"id"`
+	URI           string            `json:"uri"`
+	Extra         map[string]string `json:"extra,omitempty"`
 }
 
 // TrackedRequestCodec handles encoding and decoding of a TrackedRequest.

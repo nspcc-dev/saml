@@ -30,7 +30,7 @@ func TestCookieSameSite(t *testing.T) {
 	getSessionCookie := func(tb testing.TB) *http.Cookie {
 		resp := httptest.NewRecorder()
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
-		err := csp.CreateSession(resp, req, &saml.Assertion{})
+		err := csp.CreateSession(resp, req, &saml.Assertion{}, nil)
 		assert.Check(tb, err)
 
 		result := resp.Result()

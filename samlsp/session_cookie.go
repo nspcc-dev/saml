@@ -34,13 +34,13 @@ type CookieSessionProvider struct {
 // CreateSession is called when we have received a valid SAML assertion and
 // should create a new session and modify the http response accordingly, e.g. by
 // setting a cookie.
-func (c CookieSessionProvider) CreateSession(w http.ResponseWriter, r *http.Request, assertion *saml.Assertion) error {
+func (c CookieSessionProvider) CreateSession(w http.ResponseWriter, r *http.Request, assertion *saml.Assertion, extra map[string]string) error {
 	// Cookies should not have the port attached to them so strip it off
 	if domain, _, err := net.SplitHostPort(c.Domain); err == nil {
 		c.Domain = domain
 	}
 
-	session, err := c.Codec.New(assertion)
+	session, err := c.Codec.New(assertion, extra)
 	if err != nil {
 		return err
 	}

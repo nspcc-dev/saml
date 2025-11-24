@@ -442,7 +442,7 @@ func TestMiddlewareDefaultCookieDomainIPv4(t *testing.T) {
 
 	req, _ := http.NewRequest("GET", "/", nil)
 	resp := httptest.NewRecorder()
-	assert.Check(t, sp.CreateSession(resp, req, &saml.Assertion{}))
+	assert.Check(t, sp.CreateSession(resp, req, &saml.Assertion{}, nil))
 
 	assert.Check(t,
 		strings.Contains(resp.Header().Get("Set-Cookie"), "Domain=127.0.0.1;"),
@@ -459,7 +459,7 @@ func TestMiddlewareDefaultCookieDomainIPv6(t *testing.T) {
 
 	req, _ := http.NewRequest("GET", "/", nil)
 	resp := httptest.NewRecorder()
-	assert.Check(t, sp.CreateSession(resp, req, &saml.Assertion{}))
+	assert.Check(t, sp.CreateSession(resp, req, &saml.Assertion{}, nil))
 
 	assert.Check(t,
 		strings.Contains(resp.Header().Get("Set-Cookie"), "Domain=::1;"),

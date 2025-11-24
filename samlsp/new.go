@@ -49,7 +49,7 @@ type (
 	}
 
 	// PublicKeysGetter represents func to retrieve actual public keys list.
-	PublicKeysGetter func() []crypto.PublicKey
+	PublicKeysGetter func(extra map[string]string) []crypto.PublicKey
 
 	// SessionProviderOptions represents the parameters for creating a new SessionProvider.
 	SessionProviderOptions struct {

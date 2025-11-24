@@ -68,7 +68,7 @@ func (s JWTTrackedRequestCodec) Decode(signed string) (*TrackedRequest, error) {
 		}
 
 		var (
-			keys   = s.VerificationPublicKeys()
+			keys   = s.VerificationPublicKeys(claims.Extra)
 			keySet = jwt.VerificationKeySet{
 				Keys: make([]jwt.VerificationKey, 0, len(keys)+1),
 			}

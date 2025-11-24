@@ -32,7 +32,7 @@ type SessionProvider interface {
 	// CreateSession is called when we have received a valid SAML assertion and
 	// should create a new session and modify the http response accordingly, e.g. by
 	// setting a cookie.
-	CreateSession(w http.ResponseWriter, r *http.Request, assertion *saml.Assertion) error
+	CreateSession(w http.ResponseWriter, r *http.Request, assertion *saml.Assertion, extra map[string]string) error
 
 	// DeleteSession is called to modify the response such that it removed the current
 	// session, e.g. by deleting a cookie.
@@ -47,7 +47,7 @@ type SessionProvider interface {
 // Session. The default implementation uses JWTs, JWTSessionCodec.
 type SessionCodec interface {
 	// New creates a Session from the SAML assertion.
-	New(assertion *saml.Assertion) (Session, error)
+	New(assertion *saml.Assertion, extra map[string]string) (Session, error)
 
 	// Encode returns a serialized version of the Session.
 	//

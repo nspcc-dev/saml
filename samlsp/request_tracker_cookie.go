@@ -29,13 +29,14 @@ type CookieRequestTracker struct {
 	RedirectURIOverride string
 }
 
-// TrackRequest starts tracking the SAML request with the given ID. It returns an
+// TrackRequest starts tracking the SAML request with the given ID and extra data. It returns an
 // `index` that should be used as the RelayState in the SAMl request flow.
-func (t CookieRequestTracker) TrackRequest(w http.ResponseWriter, r *http.Request, samlRequestID string) (string, error) {
+func (t CookieRequestTracker) TrackRequest(w http.ResponseWriter, r *http.Request, samlRequestID string, extra map[string]string) (string, error) {
 	trackedRequest := TrackedRequest{
 		Index:         base64.RawURLEncoding.EncodeToString(randomBytes(42)),
 		SAMLRequestID: samlRequestID,
 		URI:           r.URL.String(),
+		Extra:         extra,
 	}
 
 	if t.RedirectURIOverride != "" {

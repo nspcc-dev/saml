@@ -36,9 +36,9 @@ var _ SessionCodec = JWTSessionCodec{}
 // New creates a Session from the SAML assertion.
 //
 // The returned Session is a JWTSessionClaims.
-func (c JWTSessionCodec) New(assertion *saml.Assertion) (Session, error) {
+func (c JWTSessionCodec) New(assertion *saml.Assertion, extra map[string]string) (Session, error) {
 	now := saml.TimeNow()
-	claims := JWTSessionClaims{}
+	claims := JWTSessionClaims{Extra: extra}
 	claims.SAMLSession = true
 	claims.Audience = jwt.ClaimStrings{c.Audience}
 	claims.Issuer = c.Issuer
@@ -107,7 +107,7 @@ func (c JWTSessionCodec) Decode(signed string) (Session, error) {
 		}
 
 		var (
-			keys   = c.VerificationPublicKeys()
+			keys   = c.VerificationPublicKeys(claims.Extra)
 			keySet = jwt.VerificationKeySet{
 				Keys: make([]jwt.VerificationKey, 0, len(keys)+1),
 			}
@@ -133,8 +133,9 @@ func (c JWTSessionCodec) Decode(signed string) (Session, error) {
 // JWTSessionClaims represents the JWT claims in the encoded session.
 type JWTSessionClaims struct {
 	jwt.RegisteredClaims
-	Attributes  Attributes `json:"attr"`
-	SAMLSession bool       `json:"saml-session"`
+	Attributes  Attributes        `json:"attr"`
+	SAMLSession bool              `json:"saml-session"`
+	Extra       map[string]string `json:"extra,omitempty"`
 }
 
 var _ Session = JWTSessionClaims{}

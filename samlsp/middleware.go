@@ -84,6 +84,11 @@ func (m *Middleware) ServeMetadata(w http.ResponseWriter, _ *http.Request) {
 
 // ServeACS handles requests for the SAML ACS endpoint.
 func (m *Middleware) ServeACS(w http.ResponseWriter, r *http.Request) {
+	m.HandleStartACS(w, r, nil)
+}
+
+// HandleStartACS is manually called to handle the IDP ACS request.
+func (m *Middleware) HandleStartACS(w http.ResponseWriter, r *http.Request, extra map[string]string) {
 	err := r.ParseForm()
 	if err != nil {
 		m.OnError(w, r, err)
@@ -111,7 +116,7 @@ func (m *Middleware) ServeACS(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	m.CreateSessionFromAssertion(w, r, assertion, m.ServiceProvider.DefaultRedirectURI)
+	m.CreateSessionFromAssertion(w, r, assertion, m.ServiceProvider.DefaultRedirectURI, extra)
 }
 
 // RequireAccount is HTTP middleware that requires that each request be
@@ -127,7 +132,7 @@ func (m *Middleware) RequireAccount(handler http.Handler) http.Handler {
 			return
 		}
 		if errors.Is(err, ErrNoSession) {
-			m.HandleStartAuthFlow(w, r)
+			m.HandleStartAuthFlow(w, r, nil)
 			return
 		}
 
@@ -136,7 +141,7 @@ func (m *Middleware) RequireAccount(handler http.Handler) http.Handler {
 }
 
 // HandleStartAuthFlow is called to start the SAML authentication process.
-func (m *Middleware) HandleStartAuthFlow(w http.ResponseWriter, r *http.Request) {
+func (m *Middleware) HandleStartAuthFlow(w http.ResponseWriter, r *http.Request, extra map[string]string) {
 	// If we try to redirect when the original request is the ACS URL we'll
 	// end up in a loop. This is a programming error, so we panic here. In
 	// general this means a 500 to the user, which is preferable to a
@@ -168,7 +173,7 @@ func (m *Middleware) HandleStartAuthFlow(w http.ResponseWriter, r *http.Request)
 	// this means that we cannot use a JWT because it is way to long. Instead
 	// we set a signed cookie that encodes the original URL which we'll check
 	// against the SAML response when we get it.
-	relayState, err := m.RequestTracker.TrackRequest(w, r, authReq.ID)
+	relayState, err := m.RequestTracker.TrackRequest(w, r, authReq.ID, extra)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -204,7 +209,7 @@ func (m *Middleware) HandleStartAuthFlow(w http.ResponseWriter, r *http.Request)
 }
 
 // CreateSessionFromAssertion is invoked by ServeHTTP when we have a new, valid SAML assertion.
-func (m *Middleware) CreateSessionFromAssertion(w http.ResponseWriter, r *http.Request, assertion *saml.Assertion, redirectURI string) {
+func (m *Middleware) CreateSessionFromAssertion(w http.ResponseWriter, r *http.Request, assertion *saml.Assertion, redirectURI string, extra map[string]string) {
 	if trackedRequestIndex := r.Form.Get("RelayState"); trackedRequestIndex != "" {
 		trackedRequest, err := m.RequestTracker.GetTrackedRequest(r, trackedRequestIndex)
 		if err != nil {
@@ -226,7 +231,7 @@ func (m *Middleware) CreateSessionFromAssertion(w http.ResponseWriter, r *http.R
 		}
 	}
 
-	if err := m.Session.CreateSession(w, r, assertion); err != nil {
+	if err := m.Session.CreateSession(w, r, assertion, extra); err != nil {
 		m.OnError(w, r, err)
 		return
 	}
